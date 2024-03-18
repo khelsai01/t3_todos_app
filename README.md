@@ -108,7 +108,7 @@ Email - khelsai@gmail.com
 - Typescript
 - tRPC
 - Prisma
-- supabade
+- supabase
 - Nextauth
 - Tailwind
 - Github
