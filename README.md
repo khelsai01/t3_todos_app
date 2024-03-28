@@ -63,7 +63,7 @@ cd t3_todos_app
 npm install
 ```
 
-*Start Application*
+**Start Application**
 
 ```bash
 npm run dev
