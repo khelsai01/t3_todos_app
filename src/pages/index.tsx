@@ -74,23 +74,23 @@ export default function Home() {
     // console.log(todo)
     setTitle(todo.title);
     setDetails(todo.details);
-    setEditId(todo.id);
+    // setEditId(todo.id);
   };
 
 
   const handleSaveEdit = () => {
  
-    
+
     if (!title.trim() || !details.trim()) {
       alert("Please enter both title and details");
       return;
     }
     
-    mutate({
-      id: editId,
-      title: title,
-      details: details,
-    });
+    // mutate({
+    //   id: editId,
+    //   title: title,
+    //   details: details,
+    // });
     setEditId(null);
   };
 
