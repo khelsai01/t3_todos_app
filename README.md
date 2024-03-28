@@ -47,17 +47,33 @@ Detailed instructions on how to install, configure, and get the project running.
 
 ***For local***
 ```bash 
-git clone `url of t3 todos app`
+git clone `https://github.com/khelsai01/t3_todos_app.git`
+```
+
+**GO to app**
+
+```bash
 cd t3_todos_app
+```
+
+
+ **Install node_module**
+ 
+```bash
 npm install
+```
+
+*Start Application*
+
+```bash
 npm run dev
 ```
 
 ## Usage
-1. Create todo by todo name
-2. It con shown on UI
-3. Toggle checkbox while Completed
-4. Detele to by clicking the Delete button
+1. Create todo by todo name and Detils and after click on Add Todo.
+2. It will shown on UI.
+3. Toggle checkbox for completed or incompleted the status.
+4. Detele the todo to by clicking the Delete button then todo deleted and shown on UI as well.
 
 ```bash
 title - Reactjs
@@ -68,16 +84,20 @@ Description - This tech stack I was done in today.
 ![page1](https://github.com/khelsai01/t3_todos_app/assets/119441119/18effb08-5000-4500-ae2b-226221750a2b)
 
 ### Create todo without sign in
+
 ![page2](https://github.com/khelsai01/t3_todos_app/assets/119441119/f611ecf1-255c-47a3-a1a5-3f7fec71e102)
 
 ### Sign in by Google
 Click on top right corner  **Sign in** button
+
 ![signin1](https://github.com/khelsai01/t3_todos_app/assets/119441119/8017e868-5518-4554-bc41-60b7519163f7)
 <br/>
 <br/>
 <br/>
+
 **Take valid gamil creditional**
 ## Credentials
+
 Email - khelsai@gmail.com
 
 
