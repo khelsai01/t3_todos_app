@@ -79,7 +79,8 @@ export default function Home() {
 
 
   const handleSaveEdit = () => {
-    // Submit edited todo
+ 
+    
     if (!title.trim() || !details.trim()) {
       alert("Please enter both title and details");
       return;
