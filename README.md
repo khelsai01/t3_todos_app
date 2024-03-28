@@ -81,11 +81,13 @@ Description - This tech stack I was done in today.
 ```
 
 
-![page1](https://github.com/khelsai01/t3_todos_app/assets/119441119/18effb08-5000-4500-ae2b-226221750a2b)
+![pg1](https://github.com/khelsai01/t3_todos_app/assets/119441119/bff5814d-86f6-4efb-8ad6-dc968c9d50f6)
+
 
 ### Create todo without sign in
 
-![page2](https://github.com/khelsai01/t3_todos_app/assets/119441119/f611ecf1-255c-47a3-a1a5-3f7fec71e102)
+
+![pg2](https://github.com/khelsai01/t3_todos_app/assets/119441119/d7b2a252-cf41-4286-b570-d89dc9a9ddf5)
 
 ### Sign in by Google
 Click on top right corner  **Sign in** button
@@ -106,10 +108,13 @@ Email - khelsai@gmail.com
 <br/>
 
 ![selete google account1](https://github.com/khelsai01/t3_todos_app/assets/119441119/b81a24a8-db56-4eb8-adfb-331014fde279)
+
 <br/>
 <br/>
 <br/>
-![after login page1](https://github.com/khelsai01/t3_todos_app/assets/119441119/9fea0f74-9e79-4ce0-8f34-eecc84c25a98)
+
+![del](https://github.com/khelsai01/t3_todos_app/assets/119441119/4717e719-61b0-4f5a-b803-0149394e129d)
+
 <br/>
 <br/>
 <br/>
@@ -117,10 +122,25 @@ Email - khelsai@gmail.com
 <br/>
 <br/>
 <br/>
-![toggle and delete](https://github.com/khelsai01/t3_todos_app/assets/119441119/35a16e47-6fab-476a-b878-0b85cb0b7a46)
+
+![complete](https://github.com/khelsai01/t3_todos_app/assets/119441119/9eeeca58-88a8-43b5-be86-0c14ff80fab8)
+
+![del](https://github.com/khelsai01/t3_todos_app/assets/119441119/4717e719-61b0-4f5a-b803-0149394e129d)
+
 <br/>
 <br/>
 <br/>
+
+***Responsive*** 
+
+![tab](https://github.com/khelsai01/t3_todos_app/assets/119441119/e8daf5fa-56d2-414b-849a-9e15385fc194)
+
+![air](https://github.com/khelsai01/t3_todos_app/assets/119441119/704b5416-faeb-44ec-b8e3-872a664cbd6c)
+
+![air2](https://github.com/khelsai01/t3_todos_app/assets/119441119/95d21cd6-e71d-47ef-8541-f8bb6a05eac0)
+
+![mo](https://github.com/khelsai01/t3_todos_app/assets/119441119/535644c1-0607-4961-b398-0566fdc48872)
+
 ## Technology Stack
 
 - T3 stack
