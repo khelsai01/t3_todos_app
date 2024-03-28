@@ -5,11 +5,11 @@ import {
   publicProcedure,
 } from "@/server/api/trpc";
 
-const addTodoInput=z.object({
-  userId:z.string(),
-  title:z.string(),
-  details:z.string(),
-  done:z.boolean()
+const addTodoInput = z.object({
+  userId: z.string(),
+  title: z.string(),
+  details: z.string(),
+  done: z.boolean()
 });
 
 const setDoneInput = z.object({
@@ -19,11 +19,12 @@ const setDoneInput = z.object({
 
 // edit object
 
-const setEditInput =z.object({
+const setEditInput = z.object({
   id: z.string(),
-      title: z.string(),
-      details: z.string(),
-})
+  title: z.string(),
+  details: z.string(),
+});
+
 export const todoRouter = createTRPCRouter({
   getTodosByUser: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
     const todos = await ctx.db.todo.findMany({
@@ -44,7 +45,7 @@ export const todoRouter = createTRPCRouter({
     })
     return todo
   }),
-  deleteTodo: publicProcedure.input(z.string()).mutation(async ({ ctx, input}) => {
+  deleteTodo: publicProcedure.input(z.string()).mutation(async ({ ctx, input }) => {
     return await ctx.db.todo.delete({
       where: {
         id: input
@@ -65,19 +66,19 @@ export const todoRouter = createTRPCRouter({
   // Edit functionality 
 
   editTodo: publicProcedure.input(setEditInput).mutation(async ({ ctx, input }) => {
-      const { id, title, details } = input;
-      
-      const updatedTodo = await ctx.db.todo.update({
-        where: {
-          id: id
-        },
-        data: {
-          title: title,
-          details: details
-        }
-      });
-      
-      return updatedTodo;
-    })
-    
+    // const { id, title, details } = input;
+
+    const updatedTodo = await ctx.db.todo.update({
+      where: {
+        id: input.id
+      },
+      data: {
+        title: input.title,
+        details: input.details
+      }
+    });
+
+    return updatedTodo;
+  })
+
 });

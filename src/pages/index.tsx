@@ -18,7 +18,7 @@ export default function Home() {
   const [title, setTitle] = useState("");
   const [details, setDetails] = useState("");
   // edit 
-  const [editId, setEditId] = useState(null);
+  const [editId, setEditId] = useState("");
 
   const ctx = api.useUtils();
   const { data, isLoading: todosLoading } =
@@ -43,14 +43,15 @@ export default function Home() {
     }
   })
 
-  // const { mutate: editMutate } = api.todo.editTodo.useMutation({
-  //   onSuccess: () => {
-  //     setTitle("");
-  //     setDetails("");
-  //     void ctx.todo.getTodosByUser.invalidate();
-  //     setEditId(null)
-  //   },
-  // });
+  const { mutate: editMutate } = api.todo.editTodo.useMutation({
+    onSuccess: () => {
+      setTitle("");
+      setDetails("");
+      // handleSaveEdit()
+      void ctx.todo.getTodosByUser.invalidate();
+      // setEditId(null)
+    },
+  });
 
 
   const handleAddTodo = () => {
@@ -67,33 +68,28 @@ export default function Home() {
       details: details,
       done: false
     });
+    
   };
 
   // edit handle
   const handleEdit = (todo:Todo) => {
-    // console.log(todo)
+
     setTitle(todo.title);
     setDetails(todo.details);
-    // setEditId(todo.id);
+    setEditId(todo.id);
   };
 
 
   const handleSaveEdit = () => {
- 
 
-    if (!title.trim() || !details.trim()) {
-      alert("Please enter both title and details");
-      return;
-    }
-    
+
     // mutate({
     //   id: editId,
     //   title: title,
     //   details: details,
-    // });
-    setEditId(null);
+    // })
+    setEditId("");
   };
-
   return (
     <div className="w-9/10 bg-gray-50">
       <Header />
