@@ -8,6 +8,7 @@ interface Todo {
   id: string;
   title: string;
   details: string;
+  done:boolean
  
 }
 
@@ -17,8 +18,10 @@ export default function Home() {
   const { data: session } = useSession();
   const [title, setTitle] = useState("");
   const [details, setDetails] = useState("");
+
   // edit 
   const [editId, setEditId] = useState("");
+  const [done, setDone] = useState(false)
 
   const ctx = api.useUtils();
   const { data, isLoading: todosLoading } =
@@ -48,8 +51,8 @@ export default function Home() {
       setTitle("");
       setDetails("");
       // handleSaveEdit()
+      setEditId("")
       void ctx.todo.getTodosByUser.invalidate();
-      // setEditId(null)
     },
   });
 
@@ -77,18 +80,19 @@ export default function Home() {
     setTitle(todo.title);
     setDetails(todo.details);
     setEditId(todo.id);
+    setDone(todo.done)
   };
 
 
   const handleSaveEdit = () => {
-
-
+    // editMutate;
     // mutate({
-    //   id: editId,
     //   title: title,
     //   details: details,
+    //   userId: session?.user.id ?? "",
+    //   done:done
     // })
-    setEditId("");
+    // setEditId("");
   };
   return (
     <div className="w-9/10 bg-gray-50">

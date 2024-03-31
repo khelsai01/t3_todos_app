@@ -23,6 +23,8 @@ const setEditInput = z.object({
   id: z.string(),
   title: z.string(),
   details: z.string(),
+  userId: z.string(),
+  done: z.boolean()
 });
 
 export const todoRouter = createTRPCRouter({
@@ -72,9 +74,11 @@ export const todoRouter = createTRPCRouter({
       where: {
         id: input.id
       },
-      data: {
+      data: {        
         title: input.title,
-        details: input.details
+        details: input.details,
+        // userId: input.userId,
+        // done: input.done,
       }
     });
 

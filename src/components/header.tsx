@@ -9,11 +9,11 @@ export const Header = () => {
                 {session?.user ? (
                     <div className="flex flex-row gap-2">
                         <h2 className="text-indigo-900 text-sm md:text-base lg:text-xl text-bold italic border-2 rounded border-yellow-50 px-1 md:px-2 lg:px-2 text-center">{session.user.name}</h2>
-                        <button onClick={() => void signOut()} className="bg-indigo-500 font-family-Georgia  px-1 md:px-2 lg:px-2 border-2 rounded border-yellow-50 text-white font-weight-900 hover:bg-indigo-500 hover:border-indigo-500 text-sm md:text-base lg:text-xl text-center">Sign Out</button>
+                        <button onClick={() => void signOut()} className="bg-indigo-500 font-family-Georgia  px-1 md:px-2 lg:px-2 border-2 rounded border-yellow-50 text-white font-weight-700 hover:bg-indigo-500 text-sm md:text-base lg:text-base text-center">Sign Out</button>
                     </div>
                 ) : (
                     <button onClick={() => void signIn()} 
-                    className="bg-blue-500 font-family-Georgia p-1 px-2 border-2 rounded border-yellow-50 text-white font-weight-900 hover:bg-indigo-500 hover:border-indigo-500"
+                    className="bg-blue-500 font-family-Georgia p-1 px-2 border-2 rounded border-yellow-50 text-white font-weight-700 hover:bg-indigo-500"
                     >Sign In</button>
                 )}
             </div>
