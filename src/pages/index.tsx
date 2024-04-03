@@ -48,9 +48,9 @@ export default function Home() {
 
   const { mutate: editMutate } = api.todo.editTodo.useMutation({
     onSuccess: () => {
+      console.log("first")
       setTitle("");
       setDetails("");
-      // handleSaveEdit()
       setEditId("")
       void ctx.todo.getTodosByUser.invalidate();
     },
@@ -80,20 +80,10 @@ export default function Home() {
     setTitle(todo.title);
     setDetails(todo.details);
     setEditId(todo.id);
-    setDone(todo.done)
+
   };
 
 
-  const handleSaveEdit = () => {
-    // editMutate;
-    // mutate({
-    //   title: title,
-    //   details: details,
-    //   userId: session?.user.id ?? "",
-    //   done:done
-    // })
-    // setEditId("");
-  };
   return (
     <div className="w-9/10 bg-gray-50">
       <Header />
@@ -116,7 +106,7 @@ export default function Home() {
 
           {editId ? (
             <button
-              onClick={handleSaveEdit}
+              onClick={()=>editMutate({id:editId,title:title, details:details})}
               className="bg-blue-400 text-white px-4 py-2 rounded-md shadow hover:bg-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50"
             >
               Save Edit
