@@ -74,6 +74,7 @@ npm run dev
 2. It will shown on UI.
 3. Toggle checkbox for completed or incompleted the status.
 4. Detele the todo to by clicking the Delete button then todo deleted and shown on UI as well.
+5. You can edit the todo title and detail as well as.
 
 ```bash
 title - Reactjs
@@ -130,6 +131,20 @@ Email - khelsai@gmail.com
 <br/>
 <br/>
 <br/>
+
+***Edit the Todo***
+*The todo can be selected for edit after clicking on edit button and input field automatic filled*
+ 
+![edit before](https://github.com/khelsai01/t3_todos_app/assets/119441119/28a7ed62-72ba-4a7a-b420-c75314199f19)
+
+*After the input edit details and title *
+
+![edit input](https://github.com/khelsai01/t3_todos_app/assets/119441119/c5663054-8c26-4284-97bb-57f5637e29ad)
+
+*Afet the clicking on edit save button todo will be change or edited shown below*
+
+![afer edit](https://github.com/khelsai01/t3_todos_app/assets/119441119/06024596-2d6d-4cf2-adbf-1975fbe15abf)
+
 
 ***Responsive*** 
 
