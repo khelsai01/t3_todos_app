@@ -121,10 +121,9 @@ export default function Home() {
 
 
         </div>
-        <div className="w-full md:w-9/10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-
+        <div className="w-1/2 gap-3 my-4">
           {data?.map((todo) => (
-            <div className="flex items-center gap-2 bg-gradient-to-r from-gray-200 via-green-200 to-blue-300 p-3 rounded-md mb-2 mt-2" key={todo.id}>
+            <div className="flex items-center gap-2 bg-gradient-to-r from-gray-200 via-green-200 to-blue-300 p-3 rounded-md mb-2 mt-4" key={todo.id}>
               <input
                 type="checkbox"
                 style={{ zoom: 1.1 }}
