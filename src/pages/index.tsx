@@ -8,8 +8,8 @@ interface Todo {
   id: string;
   title: string;
   details: string;
-  done:boolean
- 
+  done: boolean
+
 }
 
 export default function Home() {
@@ -71,11 +71,11 @@ export default function Home() {
       details: details,
       done: false
     });
-    
+
   };
 
   // edit handle
-  const handleEdit = (todo:Todo) => {
+  const handleEdit = (todo: Todo) => {
 
     setTitle(todo.title);
     setDetails(todo.details);
@@ -106,7 +106,7 @@ export default function Home() {
 
           {editId ? (
             <button
-              onClick={()=>editMutate({id:editId,title:title, details:details})}
+              onClick={() => editMutate({ id: editId, title: title, details: details })}
               className="bg-blue-400 text-white px-4 py-2 rounded-md shadow hover:bg-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50"
             >
               Save Edit
@@ -137,28 +137,33 @@ export default function Home() {
                   })
                 }}
               />
+             
               <div className="flex flex-col justify-start w-3/4">
-
-                <p className="text-lg font-semibold">{todo.title}</p>
-                <p className="text-gray-500">{todo.details}</p>
-                <h4 className={todo.done ? "text-green-500" : "text-red-500"}>
-                  {todo.done ? "Complete" : "Incomplete"}
+                <p className={`text-lg font-semibold ${todo.done ? 'line-through' : ''}`}>
+                  {todo.title}
+                </p>
+                <p className={`text-gray-500 ${todo.done ? 'line-through' : ''}`}>
+                  {todo.details}
+                </p>
+                <h4 className={todo.done ? 'text-green-500 line-through' : 'text-red-500'}>
+                  {todo.done ? 'Complete' : 'Incomplete'}
                 </h4>
               </div>
-              <div className="flex gap-2 flex-wrap">
-              <button
-                onClick={() => handleEdit(todo)}
-                className="w-[70%] text-white text-[1.1rem] font-normal bg-gray-500 px-4 py-2 border-none rounded-md shadow ml-auto font-bold"
-              >
-                Edit
-              </button>
 
-              <button
-                onClick={() => deleteMutate(todo.id)}
-                className="w-[70%] text-[1.1rem] font-normal text-white bg-red-500 px-4 py-2 border-none rounded-md shadow ml-auto font-bold "
-              >
-                Delete
-              </button>
+              <div className="flex gap-2 flex-wrap">
+                <button
+                  onClick={() => handleEdit(todo)}
+                  className="w-[70%] text-white text-[1.1rem] font-normal bg-gray-500 px-4 py-2 border-none rounded-md shadow ml-auto font-bold"
+                >
+                  Edit
+                </button>
+
+                <button
+                  onClick={() => deleteMutate(todo.id)}
+                  className="w-[70%] text-[1.1rem] font-normal text-white bg-red-500 px-4 py-2 border-none rounded-md shadow ml-auto font-bold "
+                >
+                  Delete
+                </button>
 
               </div>
             </div>
