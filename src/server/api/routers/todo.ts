@@ -23,8 +23,6 @@ const setEditInput = z.object({
   id: z.string(),
   title: z.string(),
   details: z.string(),
-  // userId: z.string(),
-  // done: z.boolean()
 });
 
 export const todoRouter = createTRPCRouter({
@@ -68,7 +66,7 @@ export const todoRouter = createTRPCRouter({
   // Edit functionality 
 
   editTodo: publicProcedure.input(setEditInput).mutation(async ({ ctx, input }) => {
-    // const { id, title, details } = input;
+
 
     const updatedTodo = await ctx.db.todo.update({
       where: {
@@ -77,8 +75,6 @@ export const todoRouter = createTRPCRouter({
       data: {        
         title: input.title,
         details: input.details,
-        // userId: input.userId,
-        // done: input.done,
       }
     });
 
