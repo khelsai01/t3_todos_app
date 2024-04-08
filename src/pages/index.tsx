@@ -1,7 +1,8 @@
-import { signIn, signOut, useSession } from "next-auth/react";
-
+import { useSession } from "next-auth/react";
 import { api } from "@/utils/api";
 import { useState } from "react";
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { Header } from "@/components/header";
 
 interface Todo {
@@ -144,26 +145,23 @@ export default function Home() {
                 <p className={`text-gray-500 ${todo.done ? 'line-through' : ''}`}>
                   {todo.details}
                 </p>
-                <h4 className={todo.done ? 'text-green-500 line-through' : 'text-red-500'}>
-                  {todo.done ? 'Complete' : 'Incomplete'}
+                <h4 className={todo.done ? 'text-green-500' : 'text-red-500'}>
+                  {!todo.done ? 'Incomplete' : ''}
                 </h4>
               </div>
 
               <div className="flex gap-2 flex-wrap">
-                <button
+                <EditIcon sx={{ color: "green" }}
                   onClick={() => handleEdit(todo)}
-                  className="w-[70%] text-white text-[1.1rem] font-normal bg-gray-500 px-4 py-2 border-none rounded-md shadow ml-auto font-bold"
-                >
-                  Edit
-                </button>
+                  className="w-[70%] m-auto cursor-pointer"
+                />
+                
 
-                <button
+                <DeleteForeverIcon sx={{ color: "red" }}
                   onClick={() => deleteMutate(todo.id)}
-                  className="w-[70%] text-[1.1rem] font-normal text-white bg-red-500 px-4 py-2 border-none rounded-md shadow ml-auto font-bold "
-                >
-                  Delete
-                </button>
-
+                  className="w-[70%] m-auto cursor-pointer "
+                />
+                
               </div>
             </div>
           ))}
