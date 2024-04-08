@@ -152,9 +152,9 @@ export default function Home() {
                 <p className={`text-gray-500 ${todo.done ? 'line-through' : ''}`}>
                   {todo.details}
                 </p>
-                <h4 className={todo.done ? 'text-green-500' : 'text-red-500'}>
+                {/* <h4 className={todo.done ? 'text-green-500' : 'text-red-500'}>
                   {!todo.done ? 'Incomplete' : ''}
-                </h4>
+                </h4> */}
               </div>
 
               <div className="flex gap-2 flex-wrap">
