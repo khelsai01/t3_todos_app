@@ -3,8 +3,8 @@ import { signIn, signOut, useSession } from "next-auth/react"
 export const Header = () => {
     const { data: session } = useSession();
 
-    let name = session?.user?.name?.split(" ");
-    const nameFirst = name?.map((str)=>str.charAt(0)).join("")
+    let customName = session?.user?.name?.split(" ");
+    const nameFirst = customName?.map((str)=>str.charAt(0)).join("")
 
 
     return (

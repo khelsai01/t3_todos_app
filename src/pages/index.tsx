@@ -20,11 +20,12 @@ export default function Home() {
   const [title, setTitle] = useState("");
   const [details, setDetails] = useState("");
   const [editId, setEditId] = useState("");
-  const [done, setDone] = useState(false)
+ 
   const ctx = api.useUtils();
   const { data, isLoading: todosLoading } =
     api.todo.getTodosByUser.useQuery(session?.user?.id ?? "");
 
+    console.log(todosLoading)
   const todoList = data?.slice().reverse();
 
 
@@ -83,7 +84,9 @@ export default function Home() {
 
   };
 
-
+if(todosLoading){
+  return <h1 className="text-5xl font-bold text-gray-500 text-center mt-[40vh]">Loading....</h1>
+}
   return (
     <div className="w-9/10 bg-gray-50">
       <Header />
