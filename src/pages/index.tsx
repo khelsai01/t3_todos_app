@@ -4,6 +4,7 @@ import { useState } from "react";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { Header } from "@/components/header";
+import {Landing} from "@/components/Home"
 
 interface Todo {
   id: string;
@@ -17,6 +18,7 @@ export default function Home() {
 
 
   const { data: session } = useSession();
+  // console.log(session);
   const [title, setTitle] = useState("");
   const [details, setDetails] = useState("");
 
@@ -88,6 +90,8 @@ export default function Home() {
   return (
     <div className="w-9/10 bg-gray-50">
       <Header />
+      {!session?.user.id ?
+      <Landing />:
       <div className="flex flex-col justify-center items-center">
 
         <div className="flex flex-col m-auto">
@@ -167,6 +171,7 @@ export default function Home() {
           ))}
         </div>
       </div>
+    }
     </div>
   );
 }
