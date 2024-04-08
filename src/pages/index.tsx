@@ -18,7 +18,7 @@ export default function Home() {
 
 
   const { data: session } = useSession();
-  // console.log(session);
+
   const [title, setTitle] = useState("");
   const [details, setDetails] = useState("");
 
@@ -29,6 +29,9 @@ export default function Home() {
   const ctx = api.useUtils();
   const { data, isLoading: todosLoading } =
     api.todo.getTodosByUser.useQuery(session?.user?.id ?? "");
+
+    const todoList = data?.slice().reverse();
+
 
   const { mutate } = api.todo.createTodo.useMutation({
 
@@ -127,8 +130,8 @@ export default function Home() {
 
         </div>
         <div className="w-1/2 gap-3 my-4">
-          {data?.map((todo) => (
-            <div className="flex items-center gap-2 bg-gradient-to-r from-gray-200 via-green-200 to-blue-300 p-3 rounded-md mb-2 mt-4" key={todo.id}>
+          {todoList?.map((todo,index) => (
+            <div className="flex items-center gap-2 bg-gradient-to-r from-gray-200 via-green-200 to-blue-300 p-3 rounded-md mb-2 mt-4" key={index}>
               <input
                 type="checkbox"
                 style={{ zoom: 1.1 }}
