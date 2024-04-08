@@ -1,7 +1,6 @@
 
 
-
-export const Landing = () => {
+ const Landing = () => {
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-[#e0f2fe]">
@@ -19,3 +18,6 @@ export const Landing = () => {
         </div>
     )
 }
+
+
+export default Landing
