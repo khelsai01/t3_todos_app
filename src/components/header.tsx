@@ -17,7 +17,7 @@ export const Header = () => {
                         <button onClick={() => void signOut()} className="bg-indigo-500 font-family-Georgia  px-1 md:px-2 lg:px-2 border-2 rounded border-yellow-50 text-white font-weight-700 hover:bg-indigo-500 text-sm md:text-base lg:text-base text-center">Sign Out</button>
                     </div>
                 ) : (
-                    <button onClick={() => void signIn()} 
+                    <button onClick={() => void signIn("google")} 
                     className="bg-blue-500 font-family-Georgia p-1 px-2 border-2 rounded border-yellow-50 text-white font-weight-700 hover:bg-indigo-500"
                     >Sign In</button>
                 )}
