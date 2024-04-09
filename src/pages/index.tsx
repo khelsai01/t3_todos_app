@@ -12,7 +12,7 @@ interface Todo {
   details: string;
   done: boolean
 
-}
+};
 
 export default function Home() {
 
@@ -24,10 +24,6 @@ export default function Home() {
   const ctx = api.useUtils();
   const { data, isLoading: todosLoading } =
     api.todo.getTodosByUser.useQuery(session?.user?.id ?? "");
-
-    console.log(todosLoading)
-  const todoList = data?.slice().reverse();
-
 
   const { mutate } = api.todo.createTodo.useMutation({
 
@@ -126,7 +122,7 @@ if(todosLoading){
 
           </div>
           <div className="w-1/2 gap-3 my-4">
-            {todoList?.map((todo, index) => (
+            {data?.map((todo, index) => (
               <div className="flex items-center gap-2 bg-gradient-to-r from-gray-200 via-green-200 to-blue-300 p-3 rounded-md mb-2 mt-4" key={index}>
                 <input
                   type="checkbox"

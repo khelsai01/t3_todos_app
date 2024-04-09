@@ -1,11 +1,11 @@
 import { signIn, signOut, useSession } from "next-auth/react"
+import Image from "next/image";
 
 export const Header = () => {
     const { data: session } = useSession();
 
     const customName = session?.user?.name?.split(" ");
     const nameFirst = customName?.map((str)=>str.charAt(0)).join("")
-
 
     return (
         <div className="w-full flex justify-between px-2 py-4 font-family: Times New Roman bg-gradient-to-r from-yellow-100 via-gray-100 to-gray-200">

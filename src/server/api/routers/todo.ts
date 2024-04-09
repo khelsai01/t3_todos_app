@@ -32,7 +32,7 @@ export const todoRouter = createTRPCRouter({
         userId: input
       }
     })
-    return todos
+    return todos.slice().reverse();
   }),
   createTodo: publicProcedure.input(addTodoInput).mutation(async ({ ctx, input }) => {
     const todo = await ctx.db.todo.create({
