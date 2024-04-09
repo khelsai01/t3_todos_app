@@ -17,7 +17,6 @@ const setDoneInput = z.object({
   done: z.boolean(),
 })
 
-// edit object
 
 const setEditInput = z.object({
   id: z.string(),
@@ -30,9 +29,12 @@ export const todoRouter = createTRPCRouter({
     const todos = await ctx.db.todo.findMany({
       where: {
         userId: input
+      },
+      orderBy: {
+        createdAt:"desc"
       }
     })
-    return todos.slice().reverse();
+    return todos;
   }),
   createTodo: publicProcedure.input(addTodoInput).mutation(async ({ ctx, input }) => {
     const todo = await ctx.db.todo.create({

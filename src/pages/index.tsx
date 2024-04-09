@@ -5,6 +5,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { Header } from "@/components/header";
 import  Landing  from "@/components/Home"
+import CircularProgress from "@mui/material/CircularProgress";
+import Box from "@mui/material/Box";
 
 interface Todo {
   id: string;
@@ -22,7 +24,7 @@ export default function Home() {
   const [editId, setEditId] = useState("");
  
   const ctx = api.useUtils();
-  const { data, isLoading: todosLoading } =
+  const { data, isLoading: todosLoading} =
     api.todo.getTodosByUser.useQuery(session?.user?.id ?? "");
 
   const { mutate } = api.todo.createTodo.useMutation({
@@ -81,7 +83,19 @@ export default function Home() {
   };
 
 if(todosLoading){
-  return <h1 className="text-5xl font-bold text-gray-500 text-center mt-[40vh]">Loading....</h1>
+  return<>
+  <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        width: "100%",
+        height: "100vh",
+      }}
+    >
+      <CircularProgress />
+    </Box>
+  </>
 }
   return (
     <div className="w-9/10 bg-gray-50">
@@ -95,6 +109,7 @@ if(todosLoading){
               type="text"
               placeholder="Title"
               value={title}
+              disabled={todosLoading}
               onChange={(e) => setTitle(e.target.value)}
               className="my-4 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
             />
@@ -136,13 +151,14 @@ if(todosLoading){
                     })
                   }}/>
 
-                <div className="flex flex-col justify-start w-3/4">
-                  <p className={`text-lg font-semibold ${todo.done ? 'line-through' : ''}`}>
+                <div className={`flex flex-col justify-start w-3/4  ${todo.done ? 'line-through' : ''}`}>
+                  <p className={`text-lg font-semibold`}>
                     {todo.title}
                   </p>
-                  <p className={`text-gray-500 ${todo.done ? 'line-through' : ''}`}>
+                  <p className={`text-gray-500 }`}>
                     {todo.details}
                   </p>
+                 
                 </div>
 
                 <div className="flex gap-2 flex-wrap">
