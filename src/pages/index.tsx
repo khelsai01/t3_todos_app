@@ -5,8 +5,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { Header } from "@/components/header";
 import  Landing  from "@/components/Home"
-import CircularProgress from "@mui/material/CircularProgress";
-import Box from "@mui/material/Box";
+import { LoadingSpine } from "@/components/Loading";
+
 
 interface Todo {
   id: string;
@@ -83,19 +83,7 @@ export default function Home() {
   };
 
 if(todosLoading){
-  return<>
-  <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        width: "100%",
-        height: "100vh",
-      }}
-    >
-      <CircularProgress />
-    </Box>
-  </>
+ return <LoadingSpine />
 }
   return (
     <div className="w-9/10 bg-gray-50">
