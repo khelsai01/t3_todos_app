@@ -35,6 +35,7 @@ export default function Home() {
       setTitle("");
       setDetails("");
       setLoad(false);
+      toast("Todo added successfully", { icon: "🚀" });
       void ctx.todo.getTodosByUser.invalidate()
     },
   })
@@ -42,13 +43,15 @@ export default function Home() {
 
     onSuccess: () => {
       setLoad(false);
+      toast("Todo status updated successfully", { icon: "🚀" });
+
       void ctx.todo.getTodosByUser.invalidate();
     }
   })
   const { mutate: deleteMutate } = api.todo.deleteTodo.useMutation({
     onSuccess: () => {
       setLoad(false);
-
+      toast("Todo deleted successfully", { icon: "🚀" });
       void ctx.todo.getTodosByUser.invalidate();
     }
   })
@@ -59,6 +62,7 @@ export default function Home() {
       setDetails("");
       setEditId("")
       setLoad(false);
+      toast("Todo updated successfully", { icon: "🚀"});
       void ctx.todo.getTodosByUser.invalidate();
     },
   });
@@ -67,7 +71,7 @@ export default function Home() {
   const handleAddTodo = () => {
 
     if (!title.trim() || !details.trim()) {
-      toast("Please enter both title and details in given input box", { icon: "🚨"});
+      toast("Please enter both title and details in given input box", { icon: "🚨" });
       return;
     }
     setLoad(true);
