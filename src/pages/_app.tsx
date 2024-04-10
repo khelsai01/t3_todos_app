@@ -7,6 +7,7 @@ import { api } from "@/utils/api";
 
 import "@/styles/globals.css";
 import Head from "next/head";
+import { Toaster } from "react-hot-toast";
 
 
 const inter = Inter({
@@ -28,6 +29,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
       <main className={`font-sans ${inter.variable}`}>
         <Component {...pageProps} />
       </main>
+      <Toaster position="top-center" />
     </SessionProvider>
   );
 };
