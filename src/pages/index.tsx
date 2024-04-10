@@ -4,7 +4,7 @@ import { useState } from "react";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { Header } from "@/components/header";
-import  Landing  from "@/components/Home"
+import Landing from "@/components/Home"
 import { LoadingSpine } from "@/components/Loading";
 
 
@@ -22,9 +22,9 @@ export default function Home() {
   const [title, setTitle] = useState("");
   const [details, setDetails] = useState("");
   const [editId, setEditId] = useState("");
- 
+
   const ctx = api.useUtils();
-  const { data, isLoading: todosLoading} =
+  const { data, isLoading: todosLoading } =
     api.todo.getTodosByUser.useQuery(session?.user?.id ?? "");
 
   const { mutate } = api.todo.createTodo.useMutation({
@@ -82,9 +82,9 @@ export default function Home() {
 
   };
 
-if(todosLoading){
- return <LoadingSpine />
-}
+  if (todosLoading) {
+    return <LoadingSpine />
+  }
   return (
     <div className="w-9/10 bg-gray-50">
       <Header />
@@ -97,7 +97,6 @@ if(todosLoading){
               type="text"
               placeholder="Title"
               value={title}
-              disabled={todosLoading}
               onChange={(e) => setTitle(e.target.value)}
               className="my-4 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
             />
@@ -106,6 +105,14 @@ if(todosLoading){
               value={details}
               onChange={(e) => setDetails(e.target.value)}
               className="my-4 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  if (title !== "" && details !== "") {
+                    handleAddTodo()
+                  }
+                }
+              }}
             />
 
             {editId ? (
@@ -117,10 +124,13 @@ if(todosLoading){
               </button>
             ) : (
 
+
               <button
                 onClick={handleAddTodo}
                 className="bg-blue-400 text-white px-4 py-2 rounded-md shadow hover:bg-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50"
               >Add Todo</button>
+
+
             )}
 
           </div>
@@ -137,7 +147,7 @@ if(todosLoading){
                       id: todo.id,
                       done: todo.done ? false : true
                     })
-                  }}/>
+                  }} />
 
                 <div className={`flex flex-col justify-start w-3/4  ${todo.done ? 'line-through' : ''}`}>
                   <p className={`text-lg font-semibold`}>
@@ -146,7 +156,7 @@ if(todosLoading){
                   <p className={`text-gray-500 }`}>
                     {todo.details}
                   </p>
-                 
+
                 </div>
 
                 <div className="flex gap-2 flex-wrap">
