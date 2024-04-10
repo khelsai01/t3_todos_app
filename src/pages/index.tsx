@@ -19,10 +19,11 @@ interface Todo {
 export default function Home() {
 
   const { data: session } = useSession();
-  const [title, setTitle] = useState("");
-  const [details, setDetails] = useState("");
+  const [todoData, setTodoData] = useState({title:"",details:""})
   const [editId, setEditId] = useState("");
   const [load, setLoad] = useState(false);
+
+  const [errorObj, setErrorObj] = useState<{ title?: string; details?: string }>({})
 
 
   const ctx = api.useUtils();
@@ -32,54 +33,85 @@ export default function Home() {
   const { mutate } = api.todo.createTodo.useMutation({
 
     onSuccess: () => {
-      setTitle("");
-      setDetails("");
+      setTodoData({title:"",details:""})
       setLoad(false);
-      toast("Todo added successfully", { icon: "🚀" });
+      toast.success("Todo added successfully", { icon: "🚀" });
       void ctx.todo.getTodosByUser.invalidate()
     },
+    onError: (error) => {
+      toast.error("Failed to add todo");
+      console.error(error);
+    }
   })
   const { mutate: setDoneMutate } = api.todo.setDone.useMutation({
 
     onSuccess: () => {
       setLoad(false);
-      toast("Todo status updated successfully", { icon: "🚀" });
+      toast.success("Todo status updated successfully", { icon: "🚀" });
 
       void ctx.todo.getTodosByUser.invalidate();
+    },
+    onError: (error) => {
+      toast.error("Failed to update todo status");
+      console.error(error);
     }
-  })
+  });
+
   const { mutate: deleteMutate } = api.todo.deleteTodo.useMutation({
     onSuccess: () => {
       setLoad(false);
-      toast("Todo deleted successfully", { icon: "🚀" });
+      toast.success("Todo deleted successfully", { icon: "🚀" });
       void ctx.todo.getTodosByUser.invalidate();
+    },
+    onError: (error) => {
+      toast.error("Failed to delete todo");
+      console.error(error);
     }
   })
 
   const { mutate: editMutate } = api.todo.editTodo.useMutation({
     onSuccess: () => {
-      setTitle("");
-      setDetails("");
+      setTodoData({title:"",details:""})
       setEditId("")
       setLoad(false);
-      toast("Todo updated successfully", { icon: "🚀"});
+      toast.success("Todo updated successfully", { icon: "🚀"});
       void ctx.todo.getTodosByUser.invalidate();
     },
+    onError: (error) => {
+      toast.error("Failed to update todo");
+      console.error(error);
+    }
   });
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setTodoData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
+  const validateForm = () => {
+    let errors: { title?: string, details?: string } = {};
+    if (!todoData.title.trim()) {
+      errors.title = "Title is required";
+    }
+    if (!todoData.details.trim()) {
+      errors.details = "Details is required";
+    }
+    setErrorObj(errors);
+    console.log(errors)
+    return Object.keys(errors).length === 0;
+  }
+
+  console.log(errorObj);
 
   const handleAddTodo = () => {
+    if(!validateForm()) return;
 
-    if (!title.trim() || !details.trim()) {
-      toast("Please enter both title and details in given input box", { icon: "🚨" });
-      return;
-    }
     setLoad(true);
 
     mutate({
       userId: session?.user.id ?? "",
-      title: title,
-      details: details,
+      title: todoData.title,
+      details: todoData.details,
       done: false
     });
 
@@ -88,8 +120,7 @@ export default function Home() {
 
 
   const handleEdit = (todo: Todo) => {
-    setTitle(todo.title);
-    setDetails(todo.details);
+   setTodoData({title:todo.title,details:todo.details})
     setEditId(todo.id);
 
   };
@@ -98,8 +129,8 @@ export default function Home() {
     setLoad(true);
     editMutate({
       id: editId,
-      title: title,
-      details: details
+      title: todoData.title,
+      details: todoData.details
     })
   }
   if (todosLoading) {
@@ -115,37 +146,42 @@ export default function Home() {
           <div className="flex flex-col m-auto">
             <input
               type="text"
+              name="title"
               placeholder="Title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="my-4 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+              value={todoData.title}
+              onChange={handleChange}
+              className={`my-4 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 ${errorObj.details?`border-red-500`:''}`}
             />
+            {errorObj.title && <p className="text-red-500 my-1">{errorObj.title}</p>}
             <textarea
               placeholder="Details of todo..."
-              value={details}
-              onChange={(e) => setDetails(e.target.value)}
-              className="my-4 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+              name="details"
+              value={todoData.details}
+              onChange={handleChange}
+              className={`my-4 p-2 border border-gray-300 rounded-md focus:outline-none ${errorObj.details?`border-red-500`:''}`}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && editId == "") {
                   e.preventDefault();
-                  if (title !== "" && details !== "") {
+                  if (todoData.title !== "" &&todoData.details !== "") {
                     handleAddTodo()
                   }
                 }
                 else if (e.key === "Enter" && editId !== "") {
                   e.preventDefault();
-                  if (title !== "" && details !== "") {
+                  if (todoData.title !== "" && todoData.details !== "") {
                     handleEditsubmit()
                   }
 
                 }
               }}
             />
+            {errorObj.details && <p className="text-red-500 my-1">{errorObj.details}</p>}
 
             {editId ? (
               <button
+                disabled={!!errorObj.title || !!errorObj.details}
                 onClick={handleEditsubmit}
-                className="bg-blue-400 text-white px-4 py-2 rounded-md shadow hover:bg-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50"
+                className="bg-blue-400 text-white my-3 px-4 py-2 rounded-md shadow hover:bg-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50"
               >
                 Save Edit
               </button>
@@ -154,7 +190,7 @@ export default function Home() {
 
               <button
                 onClick={handleAddTodo}
-                className="bg-blue-400 text-white px-4 py-2 rounded-md shadow hover:bg-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50"
+                className="bg-blue-400 text-white my-3 px-4 py-2 rounded-md shadow hover:bg-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50"
               >Add Todo</button>
 
 
