@@ -20,8 +20,8 @@ export default function Home() {
 
   const { data: session } = useSession();
   const [todoData, setTodoData] = useState({title:"",details:""})
-  const [editId, setEditId] = useState("");
-  const [load, setLoad] = useState(false);
+  const [editId, setEditId] = useState<string>("");
+  const [load, setLoad] = useState<boolean>(false);
 
   const [errorObj, setErrorObj] = useState<{ title?: string; details?: string }>({})
 
@@ -89,7 +89,7 @@ export default function Home() {
   };
 
   const validateForm = () => {
-    let errors: { title?: string, details?: string } = {};
+    const errors: { title?: string, details?: string } = {};
     if (!todoData.title.trim()) {
       errors.title = "Title is required";
     }
@@ -114,10 +114,7 @@ export default function Home() {
       details: todoData.details,
       done: false
     });
-
   };
-
-
 
   const handleEdit = (todo: Todo) => {
    setTodoData({title:todo.title,details:todo.details})
@@ -186,13 +183,10 @@ export default function Home() {
                 Save Edit
               </button>
             ) : (
-
-
-              <button
+             <button
                 onClick={handleAddTodo}
                 className="bg-blue-400 text-white my-3 px-4 py-2 rounded-md shadow hover:bg-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50"
               >Add Todo</button>
-
 
             )}
 
@@ -233,7 +227,6 @@ export default function Home() {
                       onClick={() => { deleteMutate(todo.id); setLoad(true) }}
                       className="w-[70%] m-auto cursor-pointer "
                     />
-
                   </div>
                 </div>
               ))}
