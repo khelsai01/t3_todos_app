@@ -106,11 +106,18 @@ export default function Home() {
               onChange={(e) => setDetails(e.target.value)}
               className="my-4 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
               onKeyDown={(e) => {
-                if (e.key === "Enter") {
+                if (e.key === "Enter" && editId=="") {
                   e.preventDefault();
                   if (title !== "" && details !== "") {
                     handleAddTodo()
                   }
+                }
+                else if(e.key==="Enter"&& editId!==""){
+                  e.preventDefault();
+                  if(title!==""&&details!==""){
+                    editMutate({id:editId,title:title,details:details})
+                  }
+                
                 }
               }}
             />
