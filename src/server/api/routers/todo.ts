@@ -5,6 +5,19 @@ import {
   publicProcedure,
 } from "@/server/api/trpc";
 
+import { Ratelimit } from "@upstash/ratelimit"; 
+import { Redis } from "@upstash/redis"
+import { TRPCError } from "@trpc/server";
+
+
+const ratelimit = new Ratelimit({
+  redis: Redis.fromEnv(),
+  limiter: Ratelimit.slidingWindow(20, "1 m"),
+  analytics: true,
+  prefix: "@upstash/ratelimit",
+});
+
+
 const addTodoInput = z.object({
   userId: z.string(),
   title: z.string(),
@@ -26,6 +39,7 @@ const setEditInput = z.object({
 
 export const todoRouter = createTRPCRouter({
   getTodosByUser: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
+   
     const todos = await ctx.db.todo.findMany({
       where: {
         userId: input
@@ -37,6 +51,13 @@ export const todoRouter = createTRPCRouter({
     return todos;
   }),
   createTodo: publicProcedure.input(addTodoInput).mutation(async ({ ctx, input }) => {
+   const rateuserId = ctx.session?.user.id;
+
+   if (!rateuserId) throw new Error("User ID is undefined");
+
+   const { success } = await ratelimit.limit(rateuserId);
+   if (!success) throw new TRPCError({ code: "TOO_MANY_REQUESTS" });
+
     const todo = await ctx.db.todo.create({
       data: {
         userId: input.userId,
@@ -82,18 +103,3 @@ export const todoRouter = createTRPCRouter({
 
 });
 
-// import { Ratelimit } from "@upstash/ratelimit"; // for deno: see above
-// import { Redis } from "@upstash/redis"; // see below for cloudflare and fastly adapters
-
-// // Create a new ratelimiter, that allows 10 requests per 10 seconds
-// const ratelimit = new Ratelimit({
-//   redis: Redis.fromEnv(),
-//   limiter: Ratelimit.slidingWindow(10, "10 s"),
-//   analytics: true,
-//   /**
-//    * Optional prefix for the keys used in redis. This is useful if you want to share a redis
-//    * instance with other applications and want to avoid key collisions. The default prefix is
-//    * "@upstash/ratelimit"
-//    */
-//   prefix: "@upstash/ratelimit",
-// });
