@@ -14,21 +14,29 @@ datasource db {
     url      = env("DATABASE_URL")
     relationMode="prisma"
 }
+// model Category {
+//   id    String @id @default(cuid())
+//   name  String @unique
+//   todos Todo[] 
+// }
 
 model Todo {
-    id String @id @default(cuid())
-    title      String
-    details    String
-    done       Boolean
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id         String   @id @default(cuid())
+  title      String
+  details    String
+  done       Boolean
+//   categoryId String
+//   category   Category @relation(fields: [categoryId], references: [id]) 
+//   priority   String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-    userId String
-    createdBy   User   @relation(fields: [userId], references: [id],onDelete:Cascade)
-    
+  userId     String
+  createdBy  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@index([userId])
+  @@index([userId])
 }
+
 
 // Necessary for Next auth
 model Account {

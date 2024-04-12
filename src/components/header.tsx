@@ -1,10 +1,10 @@
 import { signIn, signOut, useSession } from "next-auth/react"
-import Image from "next/image";
+
 
 export const Header = () => {
     const { data: session } = useSession();
 
-    const customName = session?.user?.name?.split(" ");
+    const customName: string[] | undefined = session?.user?.name?.split(" ");
     const nameFirst = customName?.map((str)=>str.charAt(0)).join("")
 
     return (
@@ -13,7 +13,10 @@ export const Header = () => {
             <div>
                 {session?.user ? (
                     <div className="flex flex-row gap-2">
-                        <h2 className="text-indigo-900 text-sm bg-[#f2d680] md:text-base lg:text-2xl text-bold  rounded-full border-yellow-50 p-2 text-center">{nameFirst}</h2>
+                        <h2 className="text-indigo-900 text-lg  md:text-lg lg:text-2xl text-bold border-yellow-50 p-2 text-center">{customName?.[0] ?? ''}</h2>
+                        <img src={session.user?.image ?? ''} alt="profile" className="w-9 h-9 md:w-10 md:h-10 lg:w-12 lg:h-12 rounded-full" />
+
+
                         <button onClick={() => void signOut()} className="bg-indigo-500 font-family-Georgia  px-1 md:px-2 lg:px-2 border-2 rounded border-yellow-50 text-white font-weight-700 hover:bg-indigo-500 text-sm md:text-base lg:text-base text-center">Sign Out</button>
                     </div>
                 ) : (
