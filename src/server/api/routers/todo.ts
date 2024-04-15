@@ -17,12 +17,16 @@ const ratelimit = new Ratelimit({
   prefix: "@upstash/ratelimit",
 });
 
-
 const addTodoInput = z.object({
   userId: z.string(),
   title: z.string(),
   details: z.string(),
-  done: z.boolean()
+  done: z.boolean(),
+  // categoryId: z.string(),
+  priority:z.enum(['LOW', 'MEDIUM', 'HIGH']),
+  dueDate: z.date().optional(),
+  
+  
 });
 
 const setDoneInput = z.object({
@@ -35,6 +39,8 @@ const setEditInput = z.object({
   id: z.string(),
   title: z.string(),
   details: z.string(),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH']),
+  dueDate: z.date().optional(),
 });
 
 export const todoRouter = createTRPCRouter({
@@ -63,7 +69,10 @@ export const todoRouter = createTRPCRouter({
         userId: input.userId,
         title: input.title,
         details: input.details,
-        done: input.done
+        done: input.done,
+        // categoryId: input.categoryId,
+        priority: input.priority,
+        dueDate: input.dueDate,
       }
     })
     return todo
@@ -95,6 +104,9 @@ export const todoRouter = createTRPCRouter({
       data: {        
         title: input.title,
         details: input.details,
+        priority: input.priority,
+        dueDate: input.dueDate,
+        
       }
     });
 

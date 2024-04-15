@@ -1,44 +1,48 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
     provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
-    // Further reading:
-    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
-    url      = env("DATABASE_URL")
-    relationMode="prisma"
+    provider     = "postgresql"
+    url          = env("DATABASE_URL")
+    relationMode = "prisma"
 }
+
 // model Category {
-//   id    String @id @default(cuid())
-//   name  String @unique
-//   todos Todo[] 
+//     id    String @id @default(cuid())
+//     name  String @unique
+//     todos Todo[]
 // }
 
 model Todo {
-  id         String   @id @default(cuid())
-  title      String
-  details    String
-  done       Boolean
-//   categoryId String
-//   category   Category @relation(fields: [categoryId], references: [id]) 
-//   priority   String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+    id         String   @id @default(cuid())
+    title      String
+    details    String
+    done       Boolean
+    // categoryId String
+    // category   Category  @relation(fields: [categoryId], references: [id])
+    priority   Priority
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+    userId    String
+    createdBy User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    dueDate      DateTime?
+    // dueTime     DateTime?
+    // reminder    DateTime?
+    // reminderTime DateTime?
 
-  userId     String
-  createdBy  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId])
+    @@index([userId])
+    // @@index([categoryId])
 }
 
+enum Priority {
+    LOW
+    MEDIUM
+    HIGH
+}
 
-// Necessary for Next auth
 model Account {
     id                String  @id @default(cuid())
     userId            String
@@ -64,6 +68,7 @@ model Session {
     userId       String
     expires      DateTime
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
     @@index([userId])
 }
 
