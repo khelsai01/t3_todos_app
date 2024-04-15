@@ -15,25 +15,20 @@ datasource db {
 // } 
 
 model Todo {
-  id         String    @id @default(cuid())
-  title      String
-  details    String
-  done       Boolean
-  priority   Priority
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  userId     String
-  createdBy  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  dueDate    DateTime?
-  // dueTime     DateTime?
-  // reminder    DateTime?
-  // reminderTime DateTime?
-
- // category   Category @relation(fields: [categoryId], references: [id])
- // categoryId String
-
-  @@index([userId])
+  id          String    @id @default(cuid())
+  title       String
+  details     String
+  done        Boolean
+  priority    Priority
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  userId      String
+  createdBy   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dueDate     DateTime?  // Add dueDate field
+  dueTime     DateTime?  // Add dueTime field
+  // Other fields and relations
 }
+
 
 enum Priority {
   LOW
