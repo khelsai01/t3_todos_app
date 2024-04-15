@@ -70,7 +70,7 @@ export const todoRouter = createTRPCRouter({
         title: input.title,
         details: input.details,
         done: input.done,
-        // categoryId: input.categoryId,
+        // categoryId: '', 
         priority: input.priority,
         dueDate: input.dueDate,
       }

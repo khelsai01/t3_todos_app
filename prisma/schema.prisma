@@ -8,11 +8,11 @@ datasource db {
   relationMode = "prisma"
 }
 
-model Category {
-  id    String  @id @default(cuid())
-  name  String  @unique
-  todos Todo[]
-}
+// model Category {
+//  id    String  @id @default(cuid())
+//  name  String  @unique
+//  todos Todo[]
+// } 
 
 model Todo {
   id         String    @id @default(cuid())
@@ -29,8 +29,8 @@ model Todo {
   // reminder    DateTime?
   // reminderTime DateTime?
 
-  category   Category @relation(fields: [categoryId], references: [id])
-  categoryId String
+ // category   Category @relation(fields: [categoryId], references: [id])
+ // categoryId String
 
   @@index([userId])
 }
