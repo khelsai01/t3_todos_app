@@ -37,6 +37,9 @@ export default function Home() {
   const [editId, setEditId] = useState<string>("");
   const [load, setLoad] = useState<boolean>(false);
   const [priority, setPriority] = useState<"LOW" | "MEDIUM" | "HIGH">("LOW");
+  const [sortedTodos, setSortedTodos] = useState<Todo[]>([]);
+  const [sortBy, setSortBy] = useState<"dueDate" | "priority" | "completion">("dueDate");
+  
 
   const [errorObj, setErrorObj] = useState<{
     title?: string;
@@ -48,8 +51,6 @@ export default function Home() {
     session?.user?.id ?? "",
   );
 
-  const [sortedTodos, setSortedTodos] = useState<Todo[]>([]);
-  const [sortBy, setSortBy] = useState<"dueDate" | "priority" | "completion">("dueDate");
 
   useEffect(() => {
     if (sortBy === "dueDate") {
