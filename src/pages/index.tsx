@@ -14,7 +14,6 @@ import Landing from "@/components/Home";
 import { LoadingSpine } from "@/components/Loading";
 import { toast } from "react-hot-toast";
 
-
 interface Todo {
   id: string;
   title: string;
@@ -33,6 +32,7 @@ export default function Home() {
     dueDate: new Date().toISOString().split("T")[0],
     dueTime: new Date().toISOString().split("T")[1]?.slice(0, 5), // Add null check for accessing array element
   });
+  console.log(todoData.dueDate);
 
   const [editId, setEditId] = useState<string>("");
   const [load, setLoad] = useState<boolean>(false);
@@ -57,9 +57,6 @@ export default function Home() {
   const { data, isLoading: todosLoading } = api.todo.getTodosByUser.useQuery(
     session?.user?.id ?? "",
   );
-
-
-
 
   useEffect(() => {
     if (sortBy === "dueDate") {
@@ -151,8 +148,6 @@ export default function Home() {
       });
     }
   }, [todosLoading, data]);
-
-
 
   const { mutate } = api.todo.createTodo.useMutation({
     onSuccess: () => {
@@ -423,19 +418,8 @@ export default function Home() {
                 value={todoData.dueDate ?? ""}
                 onChange={handleDateChange}
               />
-              <input
-                type="time"
-                name="dueTime"
-                value={todoData.dueTime ?? ""}
-                onChange={(e) =>
-                  setTodoData((prevData) => ({
-                    ...prevData,
-                    dueTime: e.target.value,
-                  }))
-                }
-              />
             </div>
-            {/* Add/Edit Todo button */}
+            
             {editId ? (
               <button
                 disabled={!!errorObj.title || !!errorObj.details}

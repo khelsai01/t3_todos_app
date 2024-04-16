@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { todoRouter } from "@/server/api/routers/todo";
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
+import { memberRouter, organizationRouter } from "./routers/organization";
+
 // import { categoryRouter } from "./routers/category";
 
 /**
@@ -10,6 +12,8 @@ import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
  */
 export const appRouter = createTRPCRouter({
   todo: todoRouter,
+  organization: organizationRouter,
+  members:memberRouter
   // category: categoryRouter,
 });
 

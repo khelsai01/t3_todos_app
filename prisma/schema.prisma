@@ -1,11 +1,11 @@
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider     = "postgresql"
-  url          = env("DATABASE_URL")
-  relationMode = "prisma"
+    provider     = "postgresql"
+    url          = env("DATABASE_URL")
+    relationMode = "prisma"
 }
 
 // model Category {
@@ -15,96 +15,112 @@ datasource db {
 // } 
 
 model Todo {
-  id          String    @id @default(cuid())
-  title       String
-  details     String
-  done        Boolean
-  priority    Priority
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  userId      String
-  createdBy   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  dueDate     DateTime?  // Add dueDate field
+
+    id        String    @id @default(cuid())
+    title     String
+    details   String
+    done      Boolean
+    priority  Priority
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    userId    String
+    createdBy User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    dueDate   DateTime?
   dueTime     DateTime?  // Add dueTime field
+    // dueTime     DateTime?
+    // reminder    DateTime?
+    // reminderTime DateTime?
+
+    // category   Category @relation(fields: [categoryId], references: [id])
+    // categoryId String
+
+    @@index([userId])
+
   // Other fields and relations
+
 }
 
 
 enum Priority {
-  LOW
-  MEDIUM
-  HIGH
+    LOW
+    MEDIUM
+    HIGH
 }
 
 model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    id                String  @id @default(cuid())
+    userId            String
+    type              String
+    provider          String
+    providerAccountId String
+    refresh_token     String? @db.Text
+    access_token      String? @db.Text
+    expires_at        Int?
+    token_type        String?
+    scope             String?
+    id_token          String? @db.Text
+    session_state     String?
+    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([provider, providerAccountId])
-  @@index([userId])
+    @@unique([provider, providerAccountId])
+    @@index([userId])
 }
 
 model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    id           String   @id @default(cuid())
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId])
+    @@index([userId])
 }
 
 model User {
-  id            String        @id @default(cuid())
-  name          String?
-  email         String?       @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  todos         Todo[]
-  memberships   Membership[]
-  role          Role @default(MEMBER)
+
+    id            String       @id @default(cuid())
+    name          String?
+    email         String?      @unique
+    emailVerified DateTime?
+    image         String?
+    role          Role      @default(MEMBER) 
+    accounts      Account[]
+    sessions      Session[]
+    todos         Todo[]
+    memberships   Membership[]
+
+
 }
 
 model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
+    identifier String
+    token      String   @unique
+    expires    DateTime
 
-  @@unique([identifier, token])
+    @@unique([identifier, token])
 }
 
 model Organization {
-  id      String       @id @default(cuid())
-  name    String
-  members Membership[]
+    id      String       @id @default(cuid())
+    name    String
+    members Membership[]
 }
 
 model Membership {
-  id            String        @id @default(cuid())
-  userId        String
-  organization  Organization  @relation(fields: [organizationId], references: [id])
-  role          Role
-  organizationId String
-  user          User          @relation(fields: [userId], references: [id])
+    id             String       @id @default(cuid())
+    userId         String
+    organizationId String
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    role           Role
+    user           User         @relation(fields: [userId], references: [id])
 
-  @@index([userId])
+    @@index([userId])
+    @@index([organizationId])
 }
 
-
 enum Role {
-  ADMIN
-  MEMBER
+
+    ADMIN
+    MEMBER
+
 }

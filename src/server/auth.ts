@@ -10,6 +10,7 @@ import { type Adapter } from "next-auth/adapters";
 import { env } from "@/env";
 import { db } from "@/server/db";
 import GoogleProvider from "next-auth/providers/google"
+import { Membership, Role } from "@prisma/client"; // Import the 'Role' type from the appropriate module
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
  * object and keep type safety.
@@ -21,7 +22,8 @@ declare module "next-auth" {
     user: DefaultSession["user"] & {
       id: string;
       // ...other properties
-      // role: UserRole;
+      // role: Role;
+      membership:Membership
     };
   }
 
