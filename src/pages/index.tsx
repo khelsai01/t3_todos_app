@@ -39,7 +39,14 @@ export default function Home() {
   const [priority, setPriority] = useState<"LOW" | "MEDIUM" | "HIGH">("LOW");
   const [sortedTodos, setSortedTodos] = useState<Todo[]>([]);
   const [sortBy, setSortBy] = useState<"dueDate" | "priority" | "completion">("dueDate");
-  
+  const [dueDateFilter, setDueDateFilter] = useState<Date | null>(null);
+  const [priorityFilter, setPriorityFilter] = useState<"LOW" | "MEDIUM" | "HIGH" | null>(null);
+  const [completionFilter, setCompletionFilter] = useState<boolean | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchResults, setSearchResults] = useState<Todo[]>([]);
+  const [isSearchEmpty, setIsSearchEmpty] = useState(true);
+
+
 
   const [errorObj, setErrorObj] = useState<{
     title?: string;
@@ -50,6 +57,8 @@ export default function Home() {
   const { data, isLoading: todosLoading } = api.todo.getTodosByUser.useQuery(
     session?.user?.id ?? "",
   );
+
+
 
 
   useEffect(() => {
@@ -78,6 +87,56 @@ export default function Home() {
   const handleSortBy = (criteria: "dueDate" | "priority" | "completion") => {
     setSortBy(criteria);
   };
+
+  useEffect(() => {
+    let filteredTodos = [...(data ?? [])];
+
+    // Apply due date filter
+    if (dueDateFilter) {
+      filteredTodos = filteredTodos.filter(todo => {
+        const todoDueDate = todo.dueDate ? new Date(todo.dueDate) : null;
+        const filterDate = new Date(dueDateFilter);
+        return (
+          todoDueDate &&
+          todoDueDate.getFullYear() === filterDate.getFullYear() &&
+          todoDueDate.getMonth() === filterDate.getMonth() &&
+          todoDueDate.getDate() === filterDate.getDate()
+        );
+      });
+    }
+
+    // Apply priority filter
+    if (priorityFilter) {
+      filteredTodos = filteredTodos.filter(todo => todo.priority === priorityFilter);
+    }
+
+    // Apply completion status filter
+    if (completionFilter !== null) {
+      filteredTodos = filteredTodos.filter(todo => todo.done === completionFilter);
+    }
+
+    // Sort the filtered todos
+    if (sortBy === "dueDate") {
+      // Sort by due date
+      filteredTodos.sort((a, b) => {
+        const dateA = a.dueDate ? new Date(a.dueDate) : new Date(); // Handle null value
+        const dateB = b.dueDate ? new Date(b.dueDate) : new Date(); // Handle null value
+        return dateA.getTime() - dateB.getTime();
+      });
+    } else if (sortBy === "priority") {
+      // Sort by priority
+      const priorityOrder = { LOW: 1, MEDIUM: 2, HIGH: 3 };
+      filteredTodos.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+    } else if (sortBy === "completion") {
+      // Sort by completion status
+      filteredTodos.sort((a, b) => (a.done === b.done ? 0 : a.done ? 1 : -1));
+    }
+
+    setSortedTodos(filteredTodos);
+  }, [data, sortBy, dueDateFilter, priorityFilter, completionFilter]);
+
+
+
 
   useEffect(() => {
     if (!todosLoading && data) {
@@ -213,7 +272,7 @@ export default function Home() {
   };
 
   const handleEdit = (todo: Todo) => {
-    
+
     setTodoData({
       title: todo.title ?? "",
       details: todo.details ?? "",
@@ -237,6 +296,39 @@ export default function Home() {
     });
   };
 
+  const handleSearch = () => {
+    const filteredTodos = (data ?? []).filter((todo: Todo) => {
+      const isKeywordMatch = todo.title.toLowerCase().includes(searchQuery.toLowerCase());
+      const isDueDateMatch =
+        dueDateFilter &&
+        todo.dueDate &&
+        new Date(todo.dueDate).toDateString() === new Date(dueDateFilter).toDateString();
+
+      // Check if search query is empty
+      if (!searchQuery) {
+        setIsSearchEmpty(true);
+        return !dueDateFilter || isDueDateMatch; // Return true if due date matches or no due date filter
+      }
+
+      setIsSearchEmpty(false);
+
+      // Return true if both keyword and due date match
+      return isKeywordMatch && (!dueDateFilter || isDueDateMatch);
+    });
+
+    setSearchResults(filteredTodos);
+  };
+
+
+
+
+
+  const handleClearFilter = () => {
+    setDueDateFilter(null);
+    setPriorityFilter(null);
+    setCompletionFilter(null);
+  };
+
 
   if (todosLoading) {
     return <LoadingSpine />;
@@ -249,6 +341,28 @@ export default function Home() {
       ) : (
         <div className="flex flex-col items-center justify-center">
           <div className="m-auto flex flex-col">
+            {/* Search input */}
+            <input
+              type="text"
+              placeholder="Search by keyword or due date"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+              }}
+              className={`my-4 rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none ${
+                errorObj.details ? "border-red-500" : ""
+              }`}
+            />
+            {/* Search button */}
+            <button
+              onClick={() => {
+                handleSearch();
+              }}
+              className="my-3 rounded-md bg-blue-400 px-4 py-2 text-white shadow hover:bg-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50"
+            >
+              Search
+            </button>
+
             {/* Title input */}
             <input
               type="text"
@@ -339,7 +453,7 @@ export default function Home() {
               </button>
             )}
           </div>
-  
+
           <div className="flex justify-between items-center">
             <span>Sort By:</span>
             <div>
@@ -350,59 +464,152 @@ export default function Home() {
               </button>
             </div>
           </div>
-  
+
+          {/* Filter and render todos */}
+          <div className="flex gap-3">
+            <input
+              type="date"
+              value={
+                dueDateFilter
+                  ? dueDateFilter.toISOString().split("T")[0]
+                  : ""
+              }
+              onChange={(e) => setDueDateFilter(e.target.valueAsDate)}
+              placeholder="Due Date Filter"
+            />
+            <select
+              value={priorityFilter ?? ""}
+              onChange={(e) =>
+                setPriorityFilter(e.target.value as "LOW" | "MEDIUM" | "HIGH" | null)
+              }
+            >
+              <option value="">All Priorities</option>
+              <option value="LOW">Low</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="HIGH">High</option>
+            </select>
+            <select
+              value={
+                completionFilter === null ? "" : completionFilter.toString()
+              }
+              onChange={(e) => {
+                const value = e.target.value;
+                setCompletionFilter(
+                  value === "true" ? true : value === "false" ? false : null
+                );
+              }}
+            >
+              <option value="">All Completion Status</option>
+              <option value="true">Completed</option>
+              <option value="false">Incomplete</option>
+            </select>
+          </div>
+
+          <div className="mt-4">
+            <button onClick={() => handleClearFilter()}>Clear Filters</button>
+          </div>
+
+          {/* Render filtered and sorted todos */}
           {load ? (
             <LoadingSpine />
           ) : (
             <div className="my-4 w-1/2 gap-3">
-              {sortedTodos.map((todo: Todo, index: Key | null | undefined) => (
-                <div
-                  className="mb-2 mt-4 flex items-center gap-2 rounded-md bg-gradient-to-r from-gray-200 via-green-200 to-blue-300 p-3"
-                  key={index}
-                >
-                  <input
-                    type="checkbox"
-                    style={{ zoom: 1.1 }}
-                    checked={!!todo.done}
-                    className="form-checkbox h-6 w-6 text-teal-400 focus:ring-teal-400"
-                    onChange={() => {
-                      setDoneMutate({
-                        id: todo.id,
-                        done: todo.done ? false : true,
-                      });
-                      setLoad(true);
-                    }}
-                  />
+              {searchQuery !== "" ? (
+                searchResults.map((todo: Todo) => (
                   <div
-                    className={`flex w-3/4 flex-col justify-start ${
-                      todo.done ? "line-through" : ""
-                    }`}
+                    key={todo.id}
+                    className={`mb-2 mt-4 flex items-center gap-2 rounded-md bg-gradient-to-r from-gray-200 via-green-200 to-blue-300 p-3 ${todo.done ? "line-through" : ""
+                      }`}
                   >
-                    <p className={`text-lg font-semibold`}>{todo.title}</p>
-                    <p className={`text-gray-500`}>{todo.details}</p>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <EditIcon
-                      sx={{ color: "green" }}
-                      onClick={() => handleEdit(todo)}
-                      className="m-auto w-[70%] cursor-pointer"
-                    />
-                    <DeleteForeverIcon
-                      sx={{ color: "red" }}
-                      onClick={() => {
-                        deleteMutate(todo.id);
+                    <input
+                      type="checkbox"
+                      style={{ zoom: 1.1 }}
+                      checked={!!todo.done}
+                      className="form-checkbox h-6 w-6 text-teal-400
+                      focus:ring-teal-400"
+                      onChange={() => {
+                        setDoneMutate({
+                          id: todo.id,
+                          done: todo.done ? false : true,
+                        });
                         setLoad(true);
                       }}
-                      className="m-auto w-[70%] cursor-pointer"
                     />
+                    <div
+                      className={`flex w-3/4 flex-col justify-start ${todo.done ? "line-through" : ""
+                        }`}
+                    >
+                      <p className={`text-lg font-semibold`}>{todo.title}</p>
+                      <p className={`text-gray-500`}>{todo.details}</p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <EditIcon
+                        sx={{ color: "green" }}
+                        onClick={() => handleEdit(todo)}
+                        className="m-auto w-[70%] cursor-pointer"
+                      />
+                      <DeleteForeverIcon
+                        sx={{ color: "red" }}
+                        onClick={() => {
+                          deleteMutate(todo.id);
+                          setLoad(true);
+                        }}
+                        className="m-auto w-[70%] cursor-pointer"
+                      />
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                sortedTodos.map((todo: Todo, index: number) => (
+                  <div
+                    key={index}
+                    className={`mb-2 mt-4 flex items-center gap-2 rounded-md bg-gradient-to-r from-gray-200 via-green-200 to-blue-300 p-3 ${todo.done ? "line-through" : ""
+                      }`}
+                  >
+                    <input
+                      type="checkbox"
+                      style={{ zoom: 1.1 }}
+                      checked={!!todo.done}
+                      className="form-checkbox h-6 w-6 text-teal-400 focus:ring-teal-400"
+                      onChange={() => {
+                        setDoneMutate({
+                          id: todo.id,
+                          done: todo.done ? false : true,
+                        });
+                        setLoad(true);
+                      }}
+                    />
+                    <div
+                      className={`flex w-3/4 flex-col justify-start ${todo.done ? "line-through" : ""
+                        }`}
+                    >
+                      <p className={`text-lg font-semibold`}>{todo.title}</p>
+                      <p className={`text-gray-500`}>{todo.details}</p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <EditIcon
+                        sx={{ color: "green" }}
+                        onClick={() => handleEdit(todo)}
+                        className="m-auto w-[70%] cursor-pointer"
+                      />
+                      <DeleteForeverIcon
+                        sx={{ color: "red" }}
+                        onClick={() => {
+                          deleteMutate(todo.id);
+                          setLoad(true);
+                        }}
+                        className="m-auto w-[70%] cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           )}
         </div>
       )}
     </div>
   );
-  
+
+
 }
