@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { z } from "zod";
-import { TRPCError, inferProcedureBuilderResolverOptions } from "@trpc/server";
+import { TRPCError, type inferProcedureBuilderResolverOptions } from "@trpc/server";
 import { protectedProcedure, t } from "../trpc";
 import { PrismaClient } from '@prisma/client';
 
