@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import {
   createTRPCRouter,
+  protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
 
@@ -56,7 +57,7 @@ export const todoRouter = createTRPCRouter({
     })
     return todos;
   }),
-  createTodo: publicProcedure.input(addTodoInput).mutation(async ({ ctx, input }) => {
+  createTodo: protectedProcedure.input(addTodoInput).mutation(async ({ ctx, input }) => {
    const rateuserId = ctx.session?.user.id;
 
    if (!rateuserId) throw new Error("User ID is undefined");

@@ -7,6 +7,7 @@ import { Header } from "@/components/header";
 import Landing from "@/components/Home";
 import { LoadingSpine } from "@/components/Loading";
 import { toast } from "react-hot-toast";
+import AddMemberForm from "./orgnization";
 
 interface Todo {
   id: string;
@@ -24,7 +25,7 @@ export default function Home() {
     details: "",
     dueDate: new Date().toISOString().split("T")[0],
   });
-  console.log(todoData.dueDate);
+  
 
   const [editId, setEditId] = useState<string>("");
   const [load, setLoad] = useState<boolean>(false);
@@ -40,8 +41,7 @@ export default function Home() {
     session?.user?.id ?? "",
   );
 
-  // const { data: categories } = api.category.getCategories.useQuery();
-  // console.log(categories)
+
 
   const { mutate } = api.todo.createTodo.useMutation({
     onSuccess: () => {
@@ -228,7 +228,10 @@ export default function Home() {
                 name="dueDate"
                 value={todoData.dueDate}
                 onChange={handleDateChange}
-              />
+                />
+                
+                <AddMemberForm />
+                
             </div>
             {editId ? (
               <button
