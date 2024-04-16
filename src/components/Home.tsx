@@ -1,5 +1,5 @@
 import Image from "next/image"
-import todolist from "@/images/todolist.jpg"
+import todolist from "@/images/todolist.jpg" //image kahi aur hai bsdk
 
  const Landing = () => {
 

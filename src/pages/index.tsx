@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
@@ -12,7 +13,6 @@ import { Header } from "@/components/header";
 import Landing from "@/components/Home";
 import { LoadingSpine } from "@/components/Loading";
 import { toast } from "react-hot-toast";
-import { format } from 'date-fns-tz';
 
 
 interface Todo {
@@ -47,6 +47,36 @@ export default function Home() {
   const { data, isLoading: todosLoading } = api.todo.getTodosByUser.useQuery(
     session?.user?.id ?? "",
   );
+
+  const [sortedTodos, setSortedTodos] = useState<Todo[]>([]);
+  const [sortBy, setSortBy] = useState<"dueDate" | "priority" | "completion">("dueDate");
+
+  useEffect(() => {
+    if (sortBy === "dueDate") {
+      const sortedByDueDate = [...(data ?? [])].sort((a, b) => {
+        if (!a.dueDate && !b.dueDate) return 0;
+        if (!a.dueDate) return 1;
+        if (!b.dueDate) return -1;
+        return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+      });
+      setSortedTodos(sortedByDueDate);
+    } else if (sortBy === "priority") {
+      const sortedByPriority = [...(data ?? [])].sort((a, b) => {
+        const priorityOrder = { LOW: 0, MEDIUM: 1, HIGH: 2 };
+        return priorityOrder[a.priority] - priorityOrder[b.priority];
+      });
+      setSortedTodos(sortedByPriority);
+    } else if (sortBy === "completion") {
+      const sortedByCompletion = [...(data ?? [])].sort((a, b) => {
+        return a.done === b.done ? 0 : a.done ? 1 : -1;
+      });
+      setSortedTodos(sortedByCompletion);
+    }
+  }, [data, sortBy]);
+
+  const handleSortBy = (criteria: "dueDate" | "priority" | "completion") => {
+    setSortBy(criteria);
+  };
 
   useEffect(() => {
     if (!todosLoading && data) {
@@ -225,8 +255,9 @@ export default function Home() {
               placeholder="Title"
               value={todoData.title}
               onChange={handleChange}
-              className={`my-4 rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none ${errorObj.details ? `border-red-500` : ""
-                }`}
+              className={`my-4 rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none ${
+                errorObj.details ? "border-red-500" : ""
+              }`}
             />
             {errorObj.title && (
               <p className="my-1 text-red-500">{errorObj.title}</p>
@@ -237,10 +268,11 @@ export default function Home() {
               name="details"
               value={todoData.details}
               onChange={handleChange}
-              className={`my-4 rounded-md border border-gray-300 p-2 focus:outline-none ${errorObj.details ? `border-red-500` : ""
-                }`}
+              className={`my-4 rounded-md border border-gray-300 p-2 focus:outline-none ${
+                errorObj.details ? "border-red-500" : ""
+              }`}
               onKeyDown={(e) => {
-                if (e.key === "Enter" && editId == "") {
+                if (e.key === "Enter" && editId === "") {
                   e.preventDefault();
                   if (todoData.title !== "" && todoData.details !== "") {
                     handleAddTodo();
@@ -276,7 +308,6 @@ export default function Home() {
                 value={todoData.dueDate ?? ""}
                 onChange={handleDateChange}
               />
-
               <input
                 type="time"
                 name="dueTime"
@@ -288,7 +319,6 @@ export default function Home() {
                   }))
                 }
               />
-
             </div>
             {/* Add/Edit Todo button */}
             {editId ? (
@@ -308,11 +338,23 @@ export default function Home() {
               </button>
             )}
           </div>
+  
+          <div className="flex justify-between items-center">
+            <span>Sort By:</span>
+            <div>
+              <button onClick={() => handleSortBy("dueDate")}>Due Date</button>
+              <button onClick={() => handleSortBy("priority")}>Priority</button>
+              <button onClick={() => handleSortBy("completion")}>
+                Completion
+              </button>
+            </div>
+          </div>
+  
           {load ? (
             <LoadingSpine />
           ) : (
             <div className="my-4 w-1/2 gap-3">
-              {data?.map((todo: Todo, index: Key | null | undefined) => (
+              {sortedTodos.map((todo: Todo, index: Key | null | undefined) => (
                 <div
                   className="mb-2 mt-4 flex items-center gap-2 rounded-md bg-gradient-to-r from-gray-200 via-green-200 to-blue-300 p-3"
                   key={index}
@@ -330,15 +372,14 @@ export default function Home() {
                       setLoad(true);
                     }}
                   />
-
                   <div
-                    className={`flex w-3/4 flex-col justify-start  ${todo.done ? "line-through" : ""
-                      }`}
+                    className={`flex w-3/4 flex-col justify-start ${
+                      todo.done ? "line-through" : ""
+                    }`}
                   >
                     <p className={`text-lg font-semibold`}>{todo.title}</p>
-                    <p className={`} text-gray-500`}>{todo.details}</p>
+                    <p className={`text-gray-500`}>{todo.details}</p>
                   </div>
-
                   <div className="flex flex-wrap gap-2">
                     <EditIcon
                       sx={{ color: "green" }}
@@ -351,7 +392,7 @@ export default function Home() {
                         deleteMutate(todo.id);
                         setLoad(true);
                       }}
-                      className="m-auto w-[70%] cursor-pointer "
+                      className="m-auto w-[70%] cursor-pointer"
                     />
                   </div>
                 </div>
@@ -362,4 +403,5 @@ export default function Home() {
       )}
     </div>
   );
+  
 }
