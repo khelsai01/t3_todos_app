@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { todoRouter } from "@/server/api/routers/todo";
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 import { memberRouter, organizationRouter } from "./routers/organization";

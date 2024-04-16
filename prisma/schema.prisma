@@ -15,6 +15,7 @@ datasource db {
 // } 
 
 model Todo {
+
     id        String    @id @default(cuid())
     title     String
     details   String
@@ -25,6 +26,7 @@ model Todo {
     userId    String
     createdBy User      @relation(fields: [userId], references: [id], onDelete: Cascade)
     dueDate   DateTime?
+  dueTime     DateTime?  // Add dueTime field
     // dueTime     DateTime?
     // reminder    DateTime?
     // reminderTime DateTime?
@@ -33,7 +35,11 @@ model Todo {
     // categoryId String
 
     @@index([userId])
+
+  // Other fields and relations
+
 }
+
 
 enum Priority {
     LOW
@@ -71,6 +77,7 @@ model Session {
 }
 
 model User {
+
     id            String       @id @default(cuid())
     name          String?
     email         String?      @unique
@@ -81,6 +88,8 @@ model User {
     sessions      Session[]
     todos         Todo[]
     memberships   Membership[]
+
+
 }
 
 model VerificationToken {
@@ -110,6 +119,8 @@ model Membership {
 }
 
 enum Role {
+
     ADMIN
     MEMBER
+
 }

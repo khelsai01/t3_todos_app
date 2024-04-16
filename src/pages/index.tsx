@@ -1,13 +1,18 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { useSession } from "next-auth/react";
 import { api } from "@/utils/api";
-import { useState } from "react";
+import { useState, useEffect, type Key } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { Header } from "@/components/header";
 import Landing from "@/components/Home";
 import { LoadingSpine } from "@/components/Loading";
 import { toast } from "react-hot-toast";
-import AddMemberForm from "./orgnization";
 
 interface Todo {
   id: string;
@@ -15,7 +20,8 @@ interface Todo {
   details: string;
   done: boolean;
   priority: "LOW" | "MEDIUM" | "HIGH";
-  dueDate: Date | null;
+  dueDate: Date | null;  // Add dueDate field
+  dueTime: Date | null;  // Add dueTime field
 }
 
 export default function Home() {
@@ -24,12 +30,16 @@ export default function Home() {
     title: "",
     details: "",
     dueDate: new Date().toISOString().split("T")[0],
+    dueTime: new Date().toISOString().split("T")[1]?.slice(0, 5), // Add null check for accessing array element
   });
-  
+  console.log(todoData.dueDate);
 
   const [editId, setEditId] = useState<string>("");
   const [load, setLoad] = useState<boolean>(false);
   const [priority, setPriority] = useState<"LOW" | "MEDIUM" | "HIGH">("LOW");
+  const [sortedTodos, setSortedTodos] = useState<Todo[]>([]);
+  const [sortBy, setSortBy] = useState<"dueDate" | "priority" | "completion">("dueDate");
+  
 
   const [errorObj, setErrorObj] = useState<{
     title?: string;
@@ -41,7 +51,7 @@ export default function Home() {
     session?.user?.id ?? "",
   );
 
-
+  
 
   const { mutate } = api.todo.createTodo.useMutation({
     onSuccess: () => {
@@ -49,6 +59,7 @@ export default function Home() {
         title: "",
         details: "",
         dueDate: new Date().toISOString().split("T")[0],
+        dueTime: new Date().toISOString().split("T")[1]?.slice(0, 5), // Reset dueTime after creating todo with null check
       });
       setPriority("LOW");
       setErrorObj({});
@@ -56,11 +67,24 @@ export default function Home() {
       toast.success("Todo added successfully", { icon: "🚀" });
       void ctx.todo.getTodosByUser.invalidate();
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error("Failed to add todo");
       console.error(error);
     },
   });
+
+  // Function to check if due date is near or overdue
+  const checkDueDate = (dueDate: Date | null): boolean => {
+    if (!dueDate) return false; // Return false if dueDate is not set
+
+    const now = new Date();
+    const differenceInDays = Math.floor(
+      (dueDate.getTime() - now.getTime()) / (1000 * 3600 * 24)
+    );
+
+    return differenceInDays <= 3; // Return true if due date is within 3 days
+  };
+
   const { mutate: setDoneMutate } = api.todo.setDone.useMutation({
     onSuccess: () => {
       setLoad(false);
@@ -68,7 +92,7 @@ export default function Home() {
 
       void ctx.todo.getTodosByUser.invalidate();
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error("Failed to update todo status");
       console.error(error);
     },
@@ -80,7 +104,7 @@ export default function Home() {
       toast.success("Todo deleted successfully", { icon: "🚀" });
       void ctx.todo.getTodosByUser.invalidate();
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error("Failed to delete todo");
       console.error(error);
     },
@@ -92,6 +116,7 @@ export default function Home() {
         title: "",
         details: "",
         dueDate: new Date().toISOString().split("T")[0],
+        dueTime: new Date().toISOString().split("T")[1]?.slice(0, 5), // Reset dueTime after editing todo with null check
       });
       setEditId("");
       setPriority("LOW");
@@ -99,7 +124,7 @@ export default function Home() {
       toast.success("Todo updated successfully", { icon: "🚀" });
       void ctx.todo.getTodosByUser.invalidate();
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error("Failed to update todo");
       console.error(error);
     },
@@ -113,8 +138,8 @@ export default function Home() {
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    setTodoData((prevData) => ({ ...prevData, dueDate: value }));
+    const { name, value } = e.target;
+    setTodoData((prevData) => ({ ...prevData, [name]: value }));
   };
 
   const validateForm = () => {
@@ -126,11 +151,8 @@ export default function Home() {
       errors.details = "Details is required";
     }
     setErrorObj(errors);
-    console.log(errors);
     return Object.keys(errors).length === 0;
   };
-
-  console.log(data);
 
   const handleAddTodo = () => {
     if (!validateForm()) return;
@@ -144,18 +166,22 @@ export default function Home() {
       done: false,
       priority: priority,
       dueDate: new Date(todoData.dueDate ?? ""),
+      dueTime: new Date(`${todoData.dueDate}T${todoData.dueTime}:00`).toISOString(),
     });
   };
 
   const handleEdit = (todo: Todo) => {
+    
     setTodoData({
       title: todo.title ?? "",
       details: todo.details ?? "",
-      dueDate: todo.dueDate?.toISOString().split("T")[0] ?? "",
+      dueDate: todo.dueDate ? new Date(todo.dueDate).toISOString().split("T")[0] : "",
+      dueTime: todo.dueTime ? new Date(todo.dueTime).toISOString().split("T")[1]?.slice(0, 5) : "",
     });
     setPriority(todo.priority);
     setEditId(todo.id);
   };
+
 
   const handleEditsubmit = () => {
     setLoad(true);
@@ -164,8 +190,12 @@ export default function Home() {
       title: todoData.title,
       details: todoData.details,
       priority: priority,
+      dueDate: new Date(todoData.dueDate ?? ""),
+      dueTime: new Date(`${todoData.dueDate}T${todoData.dueTime}:00`).toISOString(),
     });
   };
+
+
   if (todosLoading) {
     return <LoadingSpine />;
   }
@@ -177,25 +207,31 @@ export default function Home() {
       ) : (
         <div className="flex flex-col items-center justify-center">
           <div className="m-auto flex flex-col">
+            {/* Title input */}
             <input
               type="text"
               name="title"
               placeholder="Title"
               value={todoData.title}
               onChange={handleChange}
-              className={`my-4 rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none ${errorObj.details ? `border-red-500` : ""}`}
+              className={`my-4 rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none ${
+                errorObj.details ? "border-red-500" : ""
+              }`}
             />
             {errorObj.title && (
               <p className="my-1 text-red-500">{errorObj.title}</p>
             )}
+            {/* Details input */}
             <textarea
               placeholder="Details of todo..."
               name="details"
               value={todoData.details}
               onChange={handleChange}
-              className={`my-4 rounded-md border border-gray-300 p-2 focus:outline-none ${errorObj.details ? `border-red-500` : ""}`}
+              className={`my-4 rounded-md border border-gray-300 p-2 focus:outline-none ${
+                errorObj.details ? "border-red-500" : ""
+              }`}
               onKeyDown={(e) => {
-                if (e.key === "Enter" && editId == "") {
+                if (e.key === "Enter" && editId === "") {
                   e.preventDefault();
                   if (todoData.title !== "" && todoData.details !== "") {
                     handleAddTodo();
@@ -212,6 +248,7 @@ export default function Home() {
               <p className="my-1 text-red-500">{errorObj.details}</p>
             )}
             <div className="w-full border border-gray-300">
+              {/* Priority select */}
               <select
                 name="priority"
                 value={priority}
@@ -223,16 +260,15 @@ export default function Home() {
                 <option value="MEDIUM">Medium</option>
                 <option value="HIGH">High</option>
               </select>
+              {/* Due Date input */}
               <input
                 type="date"
                 name="dueDate"
-                value={todoData.dueDate}
+                value={todoData.dueDate ?? ""}
                 onChange={handleDateChange}
-                />
-                
-                <AddMemberForm />
-                
+              />
             </div>
+            
             {editId ? (
               <button
                 disabled={!!errorObj.title || !!errorObj.details}
@@ -250,11 +286,23 @@ export default function Home() {
               </button>
             )}
           </div>
+  
+          <div className="flex justify-between items-center">
+            <span>Sort By:</span>
+            <div>
+              <button onClick={() => handleSortBy("dueDate")}>Due Date</button>
+              <button onClick={() => handleSortBy("priority")}>Priority</button>
+              <button onClick={() => handleSortBy("completion")}>
+                Completion
+              </button>
+            </div>
+          </div>
+  
           {load ? (
             <LoadingSpine />
           ) : (
             <div className="my-4 w-1/2 gap-3">
-              {data?.map((todo, index) => (
+              {sortedTodos.map((todo: Todo, index: Key | null | undefined) => (
                 <div
                   className="mb-2 mt-4 flex items-center gap-2 rounded-md bg-gradient-to-r from-gray-200 via-green-200 to-blue-300 p-3"
                   key={index}
@@ -272,14 +320,14 @@ export default function Home() {
                       setLoad(true);
                     }}
                   />
-
                   <div
-                    className={`flex w-3/4 flex-col justify-start  ${todo.done ? "line-through" : ""}`}
+                    className={`flex w-3/4 flex-col justify-start ${
+                      todo.done ? "line-through" : ""
+                    }`}
                   >
                     <p className={`text-lg font-semibold`}>{todo.title}</p>
-                    <p className={`} text-gray-500`}>{todo.details}</p>
+                    <p className={`text-gray-500`}>{todo.details}</p>
                   </div>
-
                   <div className="flex flex-wrap gap-2">
                     <EditIcon
                       sx={{ color: "green" }}
@@ -292,7 +340,7 @@ export default function Home() {
                         deleteMutate(todo.id);
                         setLoad(true);
                       }}
-                      className="m-auto w-[70%] cursor-pointer "
+                      className="m-auto w-[70%] cursor-pointer"
                     />
                   </div>
                 </div>
@@ -303,4 +351,5 @@ export default function Home() {
       )}
     </div>
   );
+  
 }
