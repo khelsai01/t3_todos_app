@@ -33,7 +33,7 @@ export const organizationProcedure = protectedProcedure
     const { ctx, input } = opts;
 
     // Find the membership of the user for the specified organization
-    console.log(ctx, "ctx");
+    // console.log(ctx, "ctx");
     const membership = [ctx.session.user?.membership].find((m) => m.organizationId === input.organizationId);
     if (!membership) {
       throw new TRPCError({

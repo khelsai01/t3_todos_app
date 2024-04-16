@@ -27,13 +27,13 @@ export default function AddMemberForm() {
     },
   });
 
-  const handleSubmit = async (email: string, organizationId: string, role: 'ADMIN' | 'MEMBER') => {
+  const handleSubmit =  (email: string, organizationId: string, role: 'ADMIN' | 'MEMBER') => {
     try {
  
       const input = addMemberInputSchema.parse({ email, organizationId, role });
 
   
-      await mutate(input);
+       mutate(input);
 
     } catch (error) {
       console.error("Error validating input or calling mutation:", error);
