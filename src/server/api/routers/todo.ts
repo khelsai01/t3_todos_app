@@ -68,7 +68,7 @@ export const todoRouter = createTRPCRouter({
         done: input.done,
         priority: input.priority,
         dueDate: input.dueDate,
-        dueTime: input.dueTime,
+        dueTime: input.dueTime, // Add 'dueTime' property
       },
     });
     return todo;

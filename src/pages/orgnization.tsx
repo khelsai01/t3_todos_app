@@ -27,13 +27,13 @@ export default function AddMemberForm() {
     },
   });
 
-  const handleSubmit = async (email: string, organizationId: string, role: 'ADMIN' | 'MEMBER') => {
+  const handleSubmit =  (email: string, organizationId: string, role: 'ADMIN' | 'MEMBER') => {
     try {
  
       const input = addMemberInputSchema.parse({ email, organizationId, role });
 
   
-      await mutate(input);
+       mutate(input);
 
     } catch (error) {
       console.error("Error validating input or calling mutation:", error);
@@ -43,13 +43,13 @@ export default function AddMemberForm() {
 
   return (
     <form
-      onSubmit={async (e) => {
+      onSubmit={ (e) => {
         e.preventDefault();
         const formData = new FormData(e.target as HTMLFormElement);
         const email = formData.get('email') as string;
         const organizationId = formData.get('organizationId') as string;
         const role = formData.get('role') as 'ADMIN' | 'MEMBER'; 
-        await handleSubmit(email, organizationId, role);
+         handleSubmit(email, organizationId, role);
       }}
     >
       <input type="email" name="email" placeholder="Email" required />
