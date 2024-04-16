@@ -43,13 +43,13 @@ export default function AddMemberForm() {
 
   return (
     <form
-      onSubmit={async (e) => {
+      onSubmit={ (e) => {
         e.preventDefault();
         const formData = new FormData(e.target as HTMLFormElement);
         const email = formData.get('email') as string;
         const organizationId = formData.get('organizationId') as string;
         const role = formData.get('role') as 'ADMIN' | 'MEMBER'; 
-        await handleSubmit(email, organizationId, role);
+         handleSubmit(email, organizationId, role);
       }}
     >
       <input type="email" name="email" placeholder="Email" required />
