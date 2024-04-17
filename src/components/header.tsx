@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @next/next/no-img-element */
+
 import { signIn, signOut, useSession } from "next-auth/react"
 
 
