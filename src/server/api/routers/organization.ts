@@ -11,11 +11,11 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 // Define types based on your Prisma models
-type Organization = {
-  id: string;
-  name: string;
-  memberships: Membership[];
-};
+// type Organization = {
+//   id: string;
+//   name: string;
+//   memberships: Membership[];
+// };
 
 type Membership = {
   role: "ADMIN" | "MEMBER";
@@ -27,10 +27,10 @@ type Membership = {
   };
 };
 
-type User = {
-  id: string;
-  memberships: Membership[];
-};
+// type User = {
+//   id: string;
+//   memberships: Membership[];
+// };
 
 // Procedure to check if the user is a member of the organization
 export const organizationProcedure = protectedProcedure
