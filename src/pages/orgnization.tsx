@@ -1,4 +1,5 @@
 import { api } from '@/utils/api';
+import { useState } from 'react';
 import { z } from 'zod';
 
 
@@ -9,17 +10,22 @@ const addMemberInputSchema = z.object({
 });
 
 
-export default function AddMemberForm() {
+export const AddMemberForm = () =>{
   const ctx = api.useUtils();
+  const [role, setRole] = useState<'ADMIN' | 'MEMBER'>('MEMBER');
+  const [email , setEmail] = useState<string>('');
+  const [organizationId , setOrganizationId] = useState<string>('');
+  
 
-  const { data: user } = api.organization.whoami.useQuery();
 
-  console.log(user?.name)
+  const { data: user } = api.organization.getUserDetails.useQuery();
+
+
   const { mutate } = api.organization.addMember.useMutation({
     onSuccess: () => {
       console.log("Member added successfully");
    
-      void ctx.organization.whoami.invalidate();
+      void ctx.organization.getUserDetails.invalidate();
     },
     onError: (error) => {
       console.error("Error adding member:", error);
@@ -27,34 +33,42 @@ export default function AddMemberForm() {
     },
   });
 
-  const handleSubmit =  (email: string, organizationId: string, role: 'ADMIN' | 'MEMBER') => {
+  const handleSubmit =  (e: React.FormEvent<HTMLFormElement>) => {
     try {
- 
+      e.preventDefault();
       const input = addMemberInputSchema.parse({ email, organizationId, role });
-
-  
-       mutate(input);
-
+      mutate(input);
     } catch (error) {
       console.error("Error validating input or calling mutation:", error);
-     
     }
   };
 
+
   return (
-    <form
-      onSubmit={ (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target as HTMLFormElement);
-        const email = formData.get('email') as string;
-        const organizationId = formData.get('organizationId') as string;
-        const role = formData.get('role') as 'ADMIN' | 'MEMBER'; 
-         handleSubmit(email, organizationId, role);
-      }}
-    >
-      <input type="email" name="email" placeholder="Email" required />
-      <input type="text" name="organizationId" placeholder="Organization ID" required />
-      <select name="role" required defaultValue="MEMBER">
+    <form onSubmit={handleSubmit}>
+      <input
+        type="email"
+        name="email"
+        value={email}
+        placeholder="Email"
+        required
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <input
+        type="text"
+        name="organizationId"
+        value={organizationId}
+        onChange={(e) => setOrganizationId(e.target.value)}
+        placeholder="Organization ID"
+        required
+      />
+      <select
+        name="role"
+        required
+        defaultValue="MEMBER"
+        value={role}
+        onChange={(e) => setRole(e.target.value as 'ADMIN' | 'MEMBER')}
+      >
         <option value="ADMIN">Admin</option>
         <option value="MEMBER">Member</option>
       </select>

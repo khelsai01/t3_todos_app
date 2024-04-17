@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { z } from "zod";
-import { TRPCError, type inferProcedureBuilderResolverOptions } from "@trpc/server";
+import {
+  TRPCError,
+  type inferProcedureBuilderResolverOptions,
+} from "@trpc/server";
 import { protectedProcedure, t } from "../trpc";
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -11,6 +14,7 @@ const prisma = new PrismaClient();
 type Organization = {
   id: string;
   name: string;
+  memberships: Membership[];
 };
 
 type Membership = {
@@ -31,12 +35,13 @@ type User = {
 // Procedure to check if the user is a member of the organization
 export const organizationProcedure = protectedProcedure
   .input(z.object({ organizationId: z.string() }))
-  .use(async (opts) => {
-    const { ctx, input } = opts;
-
+  .use(function isMemberOfOrganization(opts) {
     // Find the membership of the user for the specified organization
     // console.log(ctx, "ctx");
-    const membership = [ctx.session.user?.membership].find((m) => m.organizationId === input.organizationId);
+    
+    const membership = prisma.membership.findFirst({
+      where: { organizationId: opts.input.organizationId },
+    });
     if (!membership) {
       throw new TRPCError({
         code: "FORBIDDEN",
@@ -48,7 +53,7 @@ export const organizationProcedure = protectedProcedure
     return opts.next({
       ctx: {
         Organization: {
-          id: membership.organizationId,
+          id: membership.organization,
           // name: membership.user.name ?? "", // Use optional chaining
         },
       },
@@ -58,7 +63,7 @@ export const organizationProcedure = protectedProcedure
 // Router for organization-related procedures
 export const organizationRouter = t.router({
   // Get current user details
-  whoami: protectedProcedure.query(async (opts) => {
+  getUserDetails: protectedProcedure.query(async (opts) => {
     const { ctx } = opts;
     return ctx.session.user;
   }),
@@ -70,11 +75,11 @@ export const organizationRouter = t.router({
         email: z.string().email(),
         organizationId: z.string(),
         role: z.enum(["ADMIN", "MEMBER"]),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       // Get the current user
-      const currentUser =  ctx.session.user;
+      const currentUser = ctx.session.user;
       const { email, organizationId, role } = input;
 
       // Create a new user and membership record
@@ -99,27 +104,23 @@ export const organizationRouter = t.router({
 
 // Helper function to get members of an organization
 async function getMembersOfOrganization(
-  opts: inferProcedureBuilderResolverOptions<typeof organizationProcedure>
+  opts: inferProcedureBuilderResolverOptions<typeof organizationProcedure>,
 ) {
-  const { ctx } = opts;
+  const { ctx, input } = opts;
 
   // Fetch members of the organization from the database
-  const members = await ctx.db.user.findMany({
+  return await prisma.user.findMany({
     where: {
       memberships: {
-        some: {
-          organizationId: ctx.Organization.id,
-        },
+        // organizationId: ctx.Organization.id,
       },
     },
   });
-
-  return members;
 }
 
-// Router for application-level procedures
+
 export const memberRouter = t.router({
-  // List members of an organization
+ 
   listMembers: organizationProcedure.query(async (opts) => {
     const members = await getMembersOfOrganization(opts);
     return members;
