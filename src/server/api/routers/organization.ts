@@ -17,15 +17,15 @@ const prisma = new PrismaClient();
 //   memberships: Membership[];
 // };
 
-type Membership = {
-  role: "ADMIN" | "MEMBER";
-  organizationId: string;
-  user: {
-    id: string;
-    name?: string;
-    email?: string;
-  };
-};
+// type Membership = {
+//   role: "ADMIN" | "MEMBER";
+//   organizationId: string;
+//   user: {
+//     id: string;
+//     name?: string;
+//     email?: string;
+//   };
+// };
 
 // type User = {
 //   id: string;

@@ -6,7 +6,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { useSession } from "next-auth/react";
 import { api } from "@/utils/api";
-import { useState, useEffect, type Key } from "react";
+import { useState, useEffect } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { Header } from "@/components/header";
@@ -51,7 +51,7 @@ export default function Home() {
   );
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchResults, setSearchResults] = useState<Todo[]>([]);
-  const [isSearchEmpty, setIsSearchEmpty] = useState(true);
+  // const [isSearchEmpty, setIsSearchEmpty] = useState(true);
 
   const [errorObj, setErrorObj] = useState<{
     title?: string;

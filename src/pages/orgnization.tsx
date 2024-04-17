@@ -20,6 +20,7 @@ export const AddMemberForm = () =>{
 
   const { data: user } = api.organization.getUserDetails.useQuery();
 
+  console.log(user);
 
   const { mutate } = api.organization.addMember.useMutation({
     onSuccess: () => {
