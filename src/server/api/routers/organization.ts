@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
 import { z } from "zod";
 import {
   TRPCError,
@@ -16,8 +15,7 @@ const prisma = new PrismaClient();
 export const organizationProcedure = protectedProcedure
   .input(z.object({ organizationId: z.string() }))
   .use(function isMemberOfOrganization(opts) {
-    // Find the membership of the user for the specified organization
-    // console.log(ctx, "ctx");
+   
     
     const membership = prisma.membership.findFirst({
       where: { organizationId: opts.input.organizationId },
