@@ -51,7 +51,9 @@ export default function Home() {
   );
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchResults, setSearchResults] = useState<Todo[]>([]);
-  // const [isSearchEmpty, setIsSearchEmpty] = useState(true);
+  const [isSearchEmpty, setIsSearchEmpty] = useState<boolean>(true);
+
+  console.log(isSearchEmpty);
 
   const [errorObj, setErrorObj] = useState<{
     title?: string;
