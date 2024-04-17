@@ -10,27 +10,7 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-// Define types based on your Prisma models
-// type Organization = {
-//   id: string;
-//   name: string;
-//   memberships: Membership[];
-// };
 
-// type Membership = {
-//   role: "ADMIN" | "MEMBER";
-//   organizationId: string;
-//   user: {
-//     id: string;
-//     name?: string;
-//     email?: string;
-//   };
-// };
-
-// type User = {
-//   id: string;
-//   memberships: Membership[];
-// };
 
 // Procedure to check if the user is a member of the organization
 export const organizationProcedure = protectedProcedure
@@ -63,7 +43,7 @@ export const organizationProcedure = protectedProcedure
 // Router for organization-related procedures
 export const organizationRouter = t.router({
   // Get current user details
-  getUserDetails: protectedProcedure.query(async (opts) => {
+  getUserDetails: protectedProcedure.query( (opts) => {
     const { ctx } = opts;
     return ctx.session.user;
   }),
@@ -79,7 +59,7 @@ export const organizationRouter = t.router({
     )
     .mutation(async ({ ctx, input }) => {
       // Get the current user
-      const currentUser = ctx.session.user;
+     
       const { email, organizationId, role } = input;
 
       // Create a new user and membership record
@@ -106,7 +86,7 @@ export const organizationRouter = t.router({
 async function getMembersOfOrganization(
   opts: inferProcedureBuilderResolverOptions<typeof organizationProcedure>,
 ) {
-  const { ctx, input } = opts;
+
 
   // Fetch members of the organization from the database
   return await prisma.user.findMany({
