@@ -3,7 +3,7 @@ import { todoRouter } from "@/server/api/routers/todo";
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 import { memberRouter, organizationRouter } from "./routers/organization";
 
-// import { categoryRouter } from "./routers/category";
+
 
 /**
  * This is the primary router for your server.
@@ -13,8 +13,7 @@ import { memberRouter, organizationRouter } from "./routers/organization";
 export const appRouter = createTRPCRouter({
   todo: todoRouter,
   organization: organizationRouter,
-  members:memberRouter
-  // category: categoryRouter,
+  members: memberRouter,
 });
 
 // export type definition of API

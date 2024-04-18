@@ -13,6 +13,8 @@ const ratelimit = new Ratelimit({
   prefix: "@upstash/ratelimit",
 });
 
+
+
 const addTodoInput = z.object({
   userId: z.string(),
   title: z.string(),
@@ -21,7 +23,9 @@ const addTodoInput = z.object({
   priority: z.enum(["LOW", "MEDIUM", "HIGH"]),
   dueDate: z.date().optional(),
   dueTime: z.string().optional(),
+  category: z.enum(["WORK", "PERSONAL", "FITNESS"]).optional(),
 });
+
 
 const setDoneInput = z.object({
   id: z.string(),
@@ -35,6 +39,7 @@ const setEditInput = z.object({
   priority: z.enum(["LOW", "MEDIUM", "HIGH"]),
   dueDate: z.date().optional(),
   dueTime: z.string().optional(),
+  category: z.enum(["WORK", "PERSONAL", "FITNESS"]).optional(),
 });
 
 export const todoRouter = createTRPCRouter({
@@ -54,11 +59,12 @@ export const todoRouter = createTRPCRouter({
   createTodo: publicProcedure.input(addTodoInput).mutation(async ({ ctx, input }) => {
     const rateuserId = ctx.session?.user.id;
 
-
     if (!rateuserId) throw new Error("User ID is undefined");
 
     const { success } = await ratelimit.limit(rateuserId);
     if (!success) throw new TRPCError({ code: "TOO_MANY_REQUESTS" });
+
+
 
     const todo = await ctx.db.todo.create({
       data: {
@@ -68,11 +74,14 @@ export const todoRouter = createTRPCRouter({
         done: input.done,
         priority: input.priority,
         dueDate: input.dueDate,
-        dueTime: input.dueTime, // Add 'dueTime' property
+        dueTime: input.dueTime,
+        category: input.category,
       },
     });
+
     return todo;
   }),
+
 
   deleteTodo: publicProcedure.input(z.string()).mutation(async ({ ctx, input }) => {
     return await ctx.db.todo.delete({
@@ -104,9 +113,12 @@ export const todoRouter = createTRPCRouter({
         priority: input.priority,
         dueDate: input.dueDate,
         dueTime: input.dueTime,
+        category: input.category,
       },
     });
 
     return updatedTodo;
   }),
+
+
 });

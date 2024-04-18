@@ -8,11 +8,12 @@ datasource db {
     relationMode = "prisma"
 }
 
-// model Category {
-//  id    String  @id @default(cuid())
-//  name  String  @unique
-//  todos Todo[]
-// } 
+
+enum Categories {
+    WORK
+    PERSONAL
+    FITNESS
+}
 
 model Todo {
     id        String    @id @default(cuid())
@@ -26,7 +27,10 @@ model Todo {
     updatedAt DateTime  @updatedAt
     dueDate   DateTime?
     dueTime   DateTime?
+    category  Categories? 
+    
 
+    
     @@index([userId])
 }
 
