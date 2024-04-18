@@ -13,7 +13,7 @@ import { Header } from "@/components/header";
 import Landing from "@/components/Home";
 import { LoadingSpine } from "@/components/Loading";
 import { toast } from "react-hot-toast";
-import AddMemberForm from "./orgnization";
+import {AddMemberForm} from "./orgnization";
 
 
 interface Todo {
@@ -191,6 +191,7 @@ export default function Home() {
 
         if (!todo.done && isDueSoon) {
           toast(`Task "${todo.title}" due soon!`, { icon: "ℹ️" });
+          toast(`Task ,${todo.title} due soon!, { icon: "ℹ" }`);
         }
       });
     }
@@ -316,7 +317,7 @@ export default function Home() {
       priority: priority,
       dueDate: new Date(todoData.dueDate ?? ""),
       dueTime: new Date(
-        `${todoData.dueDate}T${todoData.dueTime}:00`,
+       `${todoData.dueDate}T${todoData.dueTime}:00`,
       ).toISOString(),
       category: category,
     });
@@ -392,7 +393,6 @@ export default function Home() {
     return <LoadingSpine />;
   }
 
-  
   return (
     <div className="w-9/10 bg-gray-50">
       <Header />
@@ -690,6 +690,3 @@ export default function Home() {
     </div>
   );
 }
-
-
-

@@ -124,8 +124,11 @@ export const publicProcedure = t.procedure;
  * @see https://trpc.io/docs/procedures
  */
 
-const isAuthed = t.middleware(({ ctx, next }) => {
-  if (!ctx.session || !ctx.session.user) {
+
+
+
+export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
+  if (!ctx.session || !ctx.session?.user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
   return next({
@@ -136,10 +139,7 @@ const isAuthed = t.middleware(({ ctx, next }) => {
   })
 });
 
-
-export const protectedProcedure = t.procedure.use(isAuthed);
-
-// export const adminProcedure = t.procedure.use(isAuthed).use(({ ctx, next }) => {
+// export const adminProcedure = t.procedure.use(isAuthed).(({ ctx, next }) => {
 //   if (!ctx.session || !ctx.session.user) {
 //     throw new TRPCError({ code: "UNAUTHORIZED" });
 //   }
