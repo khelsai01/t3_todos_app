@@ -21,39 +21,48 @@ interface Todo {
   details: string;
   done: boolean;
   priority: "LOW" | "MEDIUM" | "HIGH";
-  dueDate: Date | null; // Add dueDate field
-  dueTime: Date | null; // Add dueTime field
+  dueDate: Date | null;
+  dueTime: Date | null;
+  category: "WORK" | "PERSONAL" | "FITNESS" | null;
 }
 
 export default function Home() {
   const { data: session } = useSession();
+  const currentDate = new Date();
+  const hours = currentDate.getHours().toString().padStart(2, '0');
+  const minutes = currentDate.getMinutes().toString().padStart(2, '0');
+  const currentTime =`${hours}:${minutes}`;
+
   const [todoData, setTodoData] = useState({
     title: "",
     details: "",
     dueDate: new Date().toISOString().split("T")[0],
-    dueTime: new Date().toISOString().split("T")[1]?.slice(0, 5), // Add null check for accessing array element
+    dueTime: currentTime,
   });
-  console.log(todoData.dueDate);
 
   const [editId, setEditId] = useState<string>("");
   const [load, setLoad] = useState<boolean>(false);
   const [priority, setPriority] = useState<"LOW" | "MEDIUM" | "HIGH">("LOW");
+  const [category, setCategory] = useState<"WORK" | "PERSONAL" | "FITNESS">("WORK");
   const [sortedTodos, setSortedTodos] = useState<Todo[]>([]);
-  const [sortBy, setSortBy] = useState<"dueDate" | "priority" | "completion">(
+  const [sortBy, setSortBy] = useState<"dueDate" | "priority" | "completion" | "category">(
     "dueDate",
   );
   const [dueDateFilter, setDueDateFilter] = useState<Date | null>(null);
   const [priorityFilter, setPriorityFilter] = useState<
     "LOW" | "MEDIUM" | "HIGH" | null
   >(null);
+  const [categoryFilter, setCategoryFilter] = useState<
+    "WORK" | "PERSONAL" | "FITNESS" | null
+  >(null);
   const [completionFilter, setCompletionFilter] = useState<boolean | null>(
     null,
   );
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [searchResults, setSearchResults] = useState<Todo[]>([]);
-  const [isSearchEmpty, setIsSearchEmpty] = useState<boolean>(true);
 
-  console.log(isSearchEmpty);
+  const [isSearchEmpty, setIsSearchEmpty] = useState(true);
+
+
 
   const [errorObj, setErrorObj] = useState<{
     title?: string;
@@ -64,7 +73,7 @@ export default function Home() {
   const { data, isLoading: todosLoading } = api.todo.getTodosByUser.useQuery(
     session?.user?.id ?? "",
   );
-
+  const [searchResults, setSearchResults] = useState<Todo[]>(data ?? []);
   useEffect(() => {
     if (sortBy === "dueDate") {
       const sortedByDueDate = [...(data ?? [])].sort((a, b) => {
@@ -80,7 +89,23 @@ export default function Home() {
         return priorityOrder[a.priority] - priorityOrder[b.priority];
       });
       setSortedTodos(sortedByPriority);
-    } else if (sortBy === "completion") {
+    }
+    else if (sortBy === "category") {
+      const sortedByCategory = [...(data ?? [])].sort((a, b) => {
+        const categoryOrder = { WORK: 0, PERSONAL: 1, FITNESS: 2 };
+
+        if (a.category === null && b.category === null) return 0;
+        if (a.category === null) return 1;
+        if (b.category === null) return -1;
+
+        return categoryOrder[a.category] - categoryOrder[b.category];
+      });
+
+      setSortedTodos(sortedByCategory);
+    }
+
+
+    else if (sortBy === "completion") {
       const sortedByCompletion = [...(data ?? [])].sort((a, b) => {
         return a.done === b.done ? 0 : a.done ? 1 : -1;
       });
@@ -88,14 +113,13 @@ export default function Home() {
     }
   }, [data, sortBy]);
 
-  const handleSortBy = (criteria: "dueDate" | "priority" | "completion") => {
+  const handleSortBy = (criteria: "dueDate" | "priority" | "category" | "completion") => {
     setSortBy(criteria);
   };
 
   useEffect(() => {
     let filteredTodos = [...(data ?? [])];
 
-    // Apply due date filter
     if (dueDateFilter) {
       filteredTodos = filteredTodos.filter((todo) => {
         const todoDueDate = todo.dueDate ? new Date(todo.dueDate) : null;
@@ -109,51 +133,63 @@ export default function Home() {
       });
     }
 
-    // Apply priority filter
     if (priorityFilter) {
       filteredTodos = filteredTodos.filter(
         (todo) => todo.priority === priorityFilter,
       );
     }
 
-    // Apply completion status filter
+    if (categoryFilter) {
+      filteredTodos = filteredTodos.filter(
+        (todo) => todo.category === categoryFilter,
+      );
+    }
+
+
     if (completionFilter !== null) {
       filteredTodos = filteredTodos.filter(
         (todo) => todo.done === completionFilter,
       );
     }
-
-    // Sort the filtered todos
     if (sortBy === "dueDate") {
-      // Sort by due date
       filteredTodos.sort((a, b) => {
-        const dateA = a.dueDate ? new Date(a.dueDate) : new Date(); // Handle null value
-        const dateB = b.dueDate ? new Date(b.dueDate) : new Date(); // Handle null value
+        const dateA = a.dueDate ? new Date(a.dueDate) : new Date();
+        const dateB = b.dueDate ? new Date(b.dueDate) : new Date();
         return dateA.getTime() - dateB.getTime();
       });
     } else if (sortBy === "priority") {
-      // Sort by priority
       const priorityOrder = { LOW: 1, MEDIUM: 2, HIGH: 3 };
       filteredTodos.sort(
         (a, b) => priorityOrder[a.priority] - priorityOrder[b.priority],
       );
-    } else if (sortBy === "completion") {
-      // Sort by completion status
+    }
+    else if (sortBy === "category") {
+      const sortedByCategory = [...(data ?? [])].sort((a, b) => {
+        const categoryOrder = { WORK: 0, PERSONAL: 1, FITNESS: 2 };
+
+        if (a.category === null && b.category === null) return 0;
+        if (a.category === null) return 1;
+        if (b.category === null) return -1;
+
+        return categoryOrder[a.category] - categoryOrder[b.category];
+      });
+
+      setSortedTodos(sortedByCategory);
+    }
+    else if (sortBy === "completion") {
       filteredTodos.sort((a, b) => (a.done === b.done ? 0 : a.done ? 1 : -1));
     }
 
     setSortedTodos(filteredTodos);
-  }, [data, sortBy, dueDateFilter, priorityFilter, completionFilter]);
+  }, [data, sortBy, dueDateFilter, priorityFilter, categoryFilter, completionFilter]);
 
   useEffect(() => {
     if (!todosLoading && data) {
       data.forEach((todo: Todo) => {
         const isDueSoon = checkDueDate(todo.dueDate);
 
-        // Check if the task is not yet done and is due soon
         if (!todo.done && isDueSoon) {
-          // Notify user about due date being near for incomplete tasks
-          toast(`Task "${todo.title}" due soon!`, { icon: "ℹ️" });
+          toast(`Task ,${todo.title} due soon!, { icon: "ℹ" }`);
         }
       });
     }
@@ -165,8 +201,9 @@ export default function Home() {
         title: "",
         details: "",
         dueDate: new Date().toISOString().split("T")[0],
-        dueTime: new Date().toISOString().split("T")[1]?.slice(0, 5), // Reset dueTime after creating todo with null check
+        dueTime: currentTime,
       });
+      setCategory("WORK");
       setPriority("LOW");
       setErrorObj({});
       setLoad(false);
@@ -179,16 +216,15 @@ export default function Home() {
     },
   });
 
-  // Function to check if due date is near or overdue
   const checkDueDate = (dueDate: Date | null): boolean => {
-    if (!dueDate) return false; // Return false if dueDate is not set
+    if (!dueDate) return false;
 
     const now = new Date();
     const differenceInDays = Math.floor(
       (dueDate.getTime() - now.getTime()) / (1000 * 3600 * 24),
     );
 
-    return differenceInDays <= 3; // Return true if due date is within 3 days
+    return differenceInDays <= 3;
   };
 
   const { mutate: setDoneMutate } = api.todo.setDone.useMutation({
@@ -222,9 +258,10 @@ export default function Home() {
         title: "",
         details: "",
         dueDate: new Date().toISOString().split("T")[0],
-        dueTime: new Date().toISOString().split("T")[1]?.slice(0, 5), // Reset dueTime after editing todo with null check
+        dueTime: currentTime,
       });
       setEditId("");
+      setCategory("WORK");
       setPriority("LOW");
       setLoad(false);
       toast.success("Todo updated successfully", { icon: "🚀" });
@@ -246,6 +283,11 @@ export default function Home() {
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setTodoData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
+  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setTodoData(prevData => ({ ...prevData, dueTime: value }));
   };
 
   const validateForm = () => {
@@ -273,25 +315,32 @@ export default function Home() {
       priority: priority,
       dueDate: new Date(todoData.dueDate ?? ""),
       dueTime: new Date(
-        `${todoData.dueDate}T${todoData.dueTime}:00`,
+       `${todoData.dueDate}T${todoData.dueTime}:00`,
       ).toISOString(),
+      category: category,
     });
   };
 
   const handleEdit = (todo: Todo) => {
-    setTodoData({
+    setTodoData((prevData) => ({
+      ...prevData,
       title: todo.title ?? "",
       details: todo.details ?? "",
       dueDate: todo.dueDate
         ? new Date(todo.dueDate).toISOString().split("T")[0]
         : "",
       dueTime: todo.dueTime
-        ? new Date(todo.dueTime).toISOString().split("T")[1]?.slice(0, 5)
+        ? prevData.dueTime
         : "",
-    });
+      category: todo.category ?? "WORK",
+    }));
+    setCategory(todo.category ?? "WORK");
     setPriority(todo.priority);
     setEditId(todo.id);
   };
+
+
+
 
   const handleEditsubmit = () => {
     setLoad(true);
@@ -304,6 +353,7 @@ export default function Home() {
       dueTime: new Date(
         `${todoData.dueDate}T${todoData.dueTime}:00`,
       ).toISOString(),
+      category: category,
     });
   };
 
@@ -316,23 +366,22 @@ export default function Home() {
         dueDateFilter &&
         todo.dueDate &&
         new Date(todo.dueDate).toDateString() ===
-          new Date(dueDateFilter).toDateString();
+        new Date(dueDateFilter).toDateString();
 
-      // Check if search query is empty
       if (!searchQuery) {
         setIsSearchEmpty(true);
-        return !dueDateFilter || isDueDateMatch; // Return true if due date matches or no due date filter
+        return !dueDateFilter || isDueDateMatch;
       }
 
       setIsSearchEmpty(false);
 
-      // Return true if both keyword and due date match
       return isKeywordMatch && (!dueDateFilter || isDueDateMatch);
     });
 
     setSearchResults(filteredTodos);
   };
   const handleClearFilter = () => {
+    setCategoryFilter(null);
     setDueDateFilter(null);
     setPriorityFilter(null);
     setCompletionFilter(null);
@@ -341,6 +390,7 @@ export default function Home() {
   if (todosLoading) {
     return <LoadingSpine />;
   }
+
   return (
     <div className="w-9/10 bg-gray-50">
       <Header />
@@ -349,7 +399,6 @@ export default function Home() {
       ) : (
         <div className="flex flex-col items-center justify-center">
           <div className="m-auto flex flex-col">
-            {/* Search input */}
             <input
               type="text"
               placeholder="Search by keyword or due date"
@@ -357,11 +406,9 @@ export default function Home() {
               onChange={(e) => {
                 setSearchQuery(e.target.value);
               }}
-              className={`my-4 rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none ${
-                errorObj.details ? "border-red-500" : ""
-              }`}
+              className={`my-4 rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none ${errorObj.details ? "border-red-500" : ""
+                }`}
             />
-            {/* Search button */}
             <button
               onClick={() => {
                 handleSearch();
@@ -371,29 +418,25 @@ export default function Home() {
               Search
             </button>
 
-            {/* Title input */}
             <input
               type="text"
               name="title"
               placeholder="Title"
               value={todoData.title}
               onChange={handleChange}
-              className={`my-4 rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none ${
-                errorObj.details ? "border-red-500" : ""
-              }`}
+              className={`my-4 rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none ${errorObj.details ? "border-red-500" : ""
+                }`}
             />
             {errorObj.title && (
               <p className="my-1 text-red-500">{errorObj.title}</p>
             )}
-            {/* Details input */}
             <textarea
               placeholder="Details of todo..."
               name="details"
               value={todoData.details}
               onChange={handleChange}
-              className={`my-4 rounded-md border border-gray-300 p-2 focus:outline-none ${
-                errorObj.details ? "border-red-500" : ""
-              }`}
+              className={`my-4 rounded-md border border-gray-300 p-2 focus:outline-none ${errorObj.details ? "border-red-500" : ""
+                }`}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && editId === "") {
                   e.preventDefault();
@@ -412,7 +455,6 @@ export default function Home() {
               <p className="my-1 text-red-500">{errorObj.details}</p>
             )}
             <div className="w-full border border-gray-300">
-              {/* Priority select */}
               <select
                 name="priority"
                 value={priority}
@@ -424,13 +466,31 @@ export default function Home() {
                 <option value="MEDIUM">Medium</option>
                 <option value="HIGH">High</option>
               </select>
-              {/* Due Date input */}
+              <select
+                name="category"
+                value={category}
+                onChange={(e) =>
+                  setCategory(e.target.value as "WORK" | "PERSONAL" | "FITNESS")
+                }
+              >
+                <option value="WORK">WORK</option>
+                <option value="PERSONAL">PERSONAL</option>
+                <option value="FITNESS">FITNESS</option>
+              </select>
               <input
                 type="date"
                 name="dueDate"
                 value={todoData.dueDate ?? ""}
                 onChange={handleDateChange}
               />
+
+              <input
+                type="time"
+                name="dueTime"
+                value={todoData.dueTime ?? ""}
+                onChange={handleTimeChange}
+              />
+
             </div>
 
             {editId ? (
@@ -458,13 +518,13 @@ export default function Home() {
             <div>
               <button onClick={() => handleSortBy("dueDate")}>Due Date</button>
               <button onClick={() => handleSortBy("priority")}>Priority</button>
+              <button onClick={() => handleSortBy("category")}>Category</button>
               <button onClick={() => handleSortBy("completion")}>
                 Completion
               </button>
             </div>
           </div>
 
-          {/* Filter and render todos */}
           <div className="flex gap-3">
             <input
               type="date"
@@ -488,6 +548,19 @@ export default function Home() {
               <option value="HIGH">High</option>
             </select>
             <select
+              value={categoryFilter ?? ""}
+              onChange={(e) =>
+                setCategoryFilter(
+                  e.target.value as "WORK" | "PERSONAL" | "FITNESS" | null,
+                )
+              }
+            >
+              <option value="">All Categories</option>
+              <option value="WORK">WORK</option>
+              <option value="PERSONAL">PERSONAL</option>
+              <option value="FITNESS">FITNESS</option>
+            </select>
+            <select
               value={
                 completionFilter === null ? "" : completionFilter.toString()
               }
@@ -508,107 +581,111 @@ export default function Home() {
             <button onClick={() => handleClearFilter()}>Clear Filters</button>
           </div>
 
-          {/* Render filtered and sorted todos */}
           {load ? (
             <LoadingSpine />
           ) : (
             <div className="my-4 w-1/2 gap-3">
               {searchQuery !== ""
                 ? searchResults.map((todo: Todo) => (
-                    <div
-                      key={todo.id}
-                      className={`mb-2 mt-4 flex items-center gap-2 rounded-md bg-gradient-to-r from-gray-200 via-green-200 to-blue-300 p-3 ${
-                        todo.done ? "line-through" : ""
+                  <div
+                    key={todo.id}
+                    className={`mb-2 mt-4 flex items-center gap-2 rounded-md bg-gradient-to-r from-gray-200 via-green-200 to-blue-300 p-3 ${todo.done ? "line-through" : ""
                       }`}
-                    >
-                      <input
-                        type="checkbox"
-                        style={{ zoom: 1.1 }}
-                        checked={!!todo.done}
-                        className="form-checkbox h-6 w-6 text-teal-400
+                  >
+                    <input
+                      type="checkbox"
+                      style={{ zoom: 1.1 }}
+                      checked={!!todo.done}
+                      className="form-checkbox h-6 w-6 text-teal-400
                       focus:ring-teal-400"
-                        onChange={() => {
-                          setDoneMutate({
-                            id: todo.id,
-                            done: todo.done ? false : true,
-                          });
-                          setLoad(true);
-                        }}
-                      />
-                      <div
-                        className={`flex w-3/4 flex-col justify-start ${
-                          todo.done ? "line-through" : ""
-                        }`}
-                      >
-                        <p className={`text-lg font-semibold`}>{todo.title}</p>
-                        <p className={`text-gray-500`}>{todo.details}</p>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        <EditIcon
-                          sx={{ color: "green" }}
-                          onClick={() => handleEdit(todo)}
-                          className="m-auto w-[70%] cursor-pointer"
-                        />
-                        <DeleteForeverIcon
-                          sx={{ color: "red" }}
-                          onClick={() => {
-                            deleteMutate(todo.id);
-                            setLoad(true);
-                          }}
-                          className="m-auto w-[70%] cursor-pointer"
-                        />
-                      </div>
-                    </div>
-                  ))
-                : sortedTodos.map((todo: Todo, index: number) => (
+                      onChange={() => {
+                        setDoneMutate({
+                          id: todo.id,
+                          done: todo.done ? false : true,
+                        });
+                        setLoad(true);
+                      }}
+                    />
                     <div
-                      key={index}
-                      className={`mb-2 mt-4 flex items-center gap-2 rounded-md bg-gradient-to-r from-gray-200 via-green-200 to-blue-300 p-3 ${
-                        todo.done ? "line-through" : ""
-                      }`}
+                      className={`flex w-3/4 flex-col justify-start ${todo.done ? "line-through" : ""
+                        }`}
                     >
-                      <input
-                        type="checkbox"
-                        style={{ zoom: 1.1 }}
-                        checked={!!todo.done}
-                        className="form-checkbox h-6 w-6 text-teal-400 focus:ring-teal-400"
-                        onChange={() => {
-                          setDoneMutate({
-                            id: todo.id,
-                            done: todo.done ? false : true,
-                          });
+                      <p className={`text-lg font-semibold`}>{todo.title}</p>
+                      <p className={`text-gray-500`}>{todo.details}</p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <EditIcon
+                        sx={{ color: "green" }}
+                        onClick={() => handleEdit(todo)}
+                        className="m-auto w-[70%] cursor-pointer"
+                      />
+                      <DeleteForeverIcon
+                        sx={{ color: "red" }}
+                        onClick={() => {
+                          deleteMutate(todo.id);
                           setLoad(true);
                         }}
+                        className="m-auto w-[70%] cursor-pointer"
                       />
-                      <div
-                        className={`flex w-3/4 flex-col justify-start ${
-                          todo.done ? "line-through" : ""
-                        }`}
-                      >
-                        <p className={`text-lg font-semibold`}>{todo.title}</p>
-                        <p className={`text-gray-500`}>{todo.details}</p>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        <EditIcon
-                          sx={{ color: "green" }}
-                          onClick={() => handleEdit(todo)}
-                          className="m-auto w-[70%] cursor-pointer"
-                        />
-                        <DeleteForeverIcon
-                          sx={{ color: "red" }}
-                          onClick={() => {
-                            deleteMutate(todo.id);
-                            setLoad(true);
-                          }}
-                          className="m-auto w-[70%] cursor-pointer"
-                        />
-                      </div>
                     </div>
-                  ))}
+                  </div>
+                ))
+                : sortedTodos.map((todo: Todo, index: number) => (
+                  <div
+                    key={index}
+                    className={`mb-2 mt-4 flex items-center gap-2 rounded-md bg-gradient-to-r from-gray-200 via-green-200 to-blue-300 p-3 ${todo.done ? "line-through" : ""
+                      }`}
+                  >
+                    <input
+                      type="checkbox"
+                      style={{ zoom: 1.1 }}
+                      checked={!!todo.done}
+                      className="form-checkbox h-6 w-6 text-teal-400
+                                 focus:ring-teal-400"
+                      onChange={() => {
+                        setDoneMutate({
+                          id: todo.id,
+                          done: todo.done ? false : true,
+                        });
+                        setLoad(true);
+                      }}
+                    />
+
+                    <div
+                      className={`flex w-3/4 flex-col justify-start ${todo.done ? "line-through" : ""
+                        }`}
+                    >
+                      <p className={`text-lg font-semibold`}>{todo.title}</p>
+                      <p className={`text-gray-500`}>{todo.details}</p>
+
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      <EditIcon
+                        sx={{ color: "green" }}
+                        onClick={() => handleEdit(todo)}
+                        className="m-auto w-[70%] cursor-pointer"
+                      />
+
+                      <DeleteForeverIcon
+                        sx={{ color: "red" }}
+                        onClick={() => {
+                          deleteMutate(todo.id);
+                          setLoad(true);
+                        }}
+                        className="m-auto w-[70%] cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                ))}
+
             </div>
           )}
+
         </div>
+
       )}
     </div>
   );
+
 }

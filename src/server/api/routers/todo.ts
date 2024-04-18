@@ -21,6 +21,7 @@ const addTodoInput = z.object({
   priority: z.enum(["LOW", "MEDIUM", "HIGH"]),
   dueDate: z.date().optional(),
   dueTime: z.string().optional(),
+  category: z.enum(["WORK", "PERSONAL", "FITNESS"]).optional(),
 });
 
 const setDoneInput = z.object({
@@ -35,6 +36,7 @@ const setEditInput = z.object({
   priority: z.enum(["LOW", "MEDIUM", "HIGH"]),
   dueDate: z.date().optional(),
   dueTime: z.string().optional(),
+  category: z.enum(["WORK", "PERSONAL", "FITNESS"]).optional(),
 });
 
 export const todoRouter = createTRPCRouter({
@@ -68,7 +70,8 @@ export const todoRouter = createTRPCRouter({
         done: input.done,
         priority: input.priority,
         dueDate: input.dueDate,
-        dueTime: input.dueTime, // Add 'dueTime' property
+        dueTime: input.dueTime, 
+        category: input.category,
       },
     });
     return todo;
@@ -104,6 +107,7 @@ export const todoRouter = createTRPCRouter({
         priority: input.priority,
         dueDate: input.dueDate,
         dueTime: input.dueTime,
+        category: input.category,
       },
     });
 
