@@ -13,7 +13,7 @@ import { Header } from "@/components/header";
 import Landing from "@/components/Home";
 import { LoadingSpine } from "@/components/Loading";
 import { toast } from "react-hot-toast";
-// import {AddMemberForm} from "./orgnization";
+import {AddMemberForm} from "./orgnization";
 
 
 interface Todo {
@@ -63,7 +63,7 @@ export default function Home() {
 
   const [isSearchEmpty, setIsSearchEmpty] = useState(true);
 
-
+  console.log(isSearchEmpty);
 
   const [errorObj, setErrorObj] = useState<{
     title?: string;
@@ -513,7 +513,7 @@ export default function Home() {
             )}
           </div>
           <div>
-            {/* <AddMemberForm /> */}
+            <AddMemberForm />
           </div>
           <div className="flex items-center justify-between">
             <span>Sort By:</span>
