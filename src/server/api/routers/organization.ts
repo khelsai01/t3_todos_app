@@ -15,10 +15,10 @@ const prisma = new PrismaClient();
 // Procedure to check if the user is a member of the organization
 export const organizationProcedure = protectedProcedure
   .input(z.object({ organizationId: z.string() }))
-  .use(function isMemberOfOrganization(opts) {
+  .use(async function isMemberOfOrganization(opts) {
    
     
-    const membership = prisma.membership.findFirst({
+    const membership = await prisma.membership.findFirst({
       where: { organizationId: opts.input.organizationId },
     });
     if (!membership) {
@@ -32,7 +32,7 @@ export const organizationProcedure = protectedProcedure
     return opts.next({
       ctx: {
         Organization: {
-          id: membership.organization,
+          id: membership.organizationId,
           // name: membership.user.name ?? "", // Use optional chaining
         },
       },
@@ -86,12 +86,16 @@ async function getMembersOfOrganization(
   opts: inferProcedureBuilderResolverOptions<typeof organizationProcedure>,
 ) {
 
-
+  const { ctx } = opts;
   // Fetch members of the organization from the database
   return await prisma.user.findMany({
     where: {
       memberships: {
-        // organizationId: ctx.Organization.id,
+        some: {
+          organization: {
+            id: ctx.Organization.id,
+          },
+        },
       },
     },
   });
