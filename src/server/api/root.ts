@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { todoRouter } from "@/server/api/routers/todo";
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
-import { memberRouter, organizationRouter } from "./routers/organization";
+import { organizationRouter } from "./routers/organization";
 
 
 
@@ -13,7 +13,6 @@ import { memberRouter, organizationRouter } from "./routers/organization";
 export const appRouter = createTRPCRouter({
   todo: todoRouter,
   organization: organizationRouter,
-  members: memberRouter,
 });
 
 // export type definition of API

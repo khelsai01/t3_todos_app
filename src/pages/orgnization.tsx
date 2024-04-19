@@ -1,79 +1,77 @@
-import { api } from '@/utils/api';
-import { useState } from 'react';
-import { z } from 'zod';
+import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { api } from "@/utils/api";
+import { LoadingSpine } from "@/components/Loading";
+import { toast } from "react-hot-toast";
 
+export default function Organization() {
+  const { data: session } = useSession();
+  const [organizationCode, setOrganizationCode] = useState("");
+  const [loading, setLoading] = useState(false);
 
-const addMemberInputSchema = z.object({
-  email: z.string().email(),
-  organizationId: z.string(),
-  role: z.enum(['ADMIN', 'MEMBER']),
-});
-
-
-export const AddMemberForm = () =>{
-  const ctx = api.useUtils();
-  const [role, setRole] = useState<'ADMIN' | 'MEMBER'>('MEMBER');
-  const [email , setEmail] = useState<string>('');
-  const [organizationId , setOrganizationId] = useState<string>('');
-  
-
-
-  const { data: user } = api.organization.getUserDetails.useQuery();
-
-  console.log(user);
-
-  const { mutate } = api.organization.addMember.useMutation({
-    onSuccess: () => {
-      console.log("Member added successfully");
-   
-      void ctx.organization.getUserDetails.invalidate();
+  const { mutate: createOrganization } = api.organization.createOrganization.useMutation({
+    onSuccess: (data: { organizationCode: string }) => {
+      setOrganizationCode(data.organizationCode);
+      setLoading(false);
+      toast.success("Organization created successfully", { icon: "🚀" });
     },
     onError: (error) => {
-      console.error("Error adding member:", error);
-      
+      setLoading(false);
+      toast.error(error.message ?? "Failed to create organization");
     },
   });
 
-  const handleSubmit =  (e: React.FormEvent<HTMLFormElement>) => {
-    try {
-      e.preventDefault();
-      const input = addMemberInputSchema.parse({ email, organizationId, role });
-      mutate(input);
-    } catch (error) {
-      console.error("Error validating input or calling mutation:", error);
+  const { mutate: joinOrganizationMutation } = api.organization.joinOrganization.useMutation({
+    onSuccess: () => {
+      setLoading(false);
+      toast.success("Successfully joined organization", { icon: "🚀" });
+    },
+    onError: (error) => {
+      setLoading(false);
+      if (error.message === "Invalid organization code") {
+        toast.error("Invalid organization code. Please check and try again.");
+      } else {
+        toast.error(error.message ?? "Failed to join organization");
+      }
+    },
+  });
+  
+  const handleJoinOrganization = () => {
+    if (!organizationCode) {
+      toast.error("Organization code is required.");
+      return;
     }
+  
+    setLoading(true);
+    joinOrganizationMutation({ organizationCode });
   };
-
+  
+  const handleCreateOrganization = () => {
+    setLoading(true);
+    createOrganization({ email: session?.user.email ?? "" });
+  };
+  
+  if (!session) {
+    return <p>Please sign in to access organizations</p>;
+  }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        type="email"
-        name="email"
-        value={email}
-        placeholder="Email"
-        required
-        onChange={(e) => setEmail(e.target.value)}
-      />
+    <div>
+      {loading && <LoadingSpine />}
+      <h1>Create Organization</h1>
+      <button onClick={handleCreateOrganization} disabled={loading}>
+        Create Organization
+      </button>
+      <h1>Join Organization</h1>
       <input
         type="text"
-        name="organizationId"
-        value={organizationId}
-        onChange={(e) => setOrganizationId(e.target.value)}
-        placeholder="Organization ID"
-        required
+        placeholder="Enter Organization Code"
+        value={organizationCode}
+        onChange={(e) => setOrganizationCode(e.target.value)}
       />
-      <select
-        name="role"
-        required
-        defaultValue="MEMBER"
-        value={role}
-        onChange={(e) => setRole(e.target.value as 'ADMIN' | 'MEMBER')}
-      >
-        <option value="ADMIN">Admin</option>
-        <option value="MEMBER">Member</option>
-      </select>
-      <button type="submit">Add Member</button>
-    </form>
+      <button onClick={handleJoinOrganization} disabled={loading}>
+        Join Organization
+      </button>
+    </div>
   );
 }

@@ -1,114 +1,138 @@
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider     = "postgresql"
-    url          = env("DATABASE_URL")
-    relationMode = "prisma"
+  provider     = "postgresql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
-
 
 enum Categories {
-    WORK
-    PERSONAL
-    FITNESS
-}
-
-model Todo {
-    id        String    @id @default(cuid())
-    title     String
-    details   String
-    done      Boolean
-    userId    String
-    createdBy User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-    priority  Priority
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
-    dueDate   DateTime?
-    dueTime   DateTime?
-    category  Categories? 
-    
-
-    
-    @@index([userId])
+  WORK
+  PERSONAL
+  FITNESS
 }
 
 enum Priority {
-    LOW
-    MEDIUM
-    HIGH
+  LOW
+  MEDIUM
+  HIGH
 }
 
-model Account {
-    id                String  @id @default(cuid())
-    userId            String
-    type              String
-    provider          String
-    providerAccountId String
-    refresh_token     String? @db.Text
-    access_token      String? @db.Text
-    expires_at        Int?
-    token_type        String?
-    scope             String?
-    id_token          String? @db.Text
-    session_state     String?
-    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    @@unique([provider, providerAccountId])
-    @@index([userId])
-}
-
-model Session {
-    id           String   @id @default(cuid())
-    sessionToken String   @unique
-    userId       String
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    @@index([userId])
-}
-
-model User {
-    id            String       @id @default(cuid())
-    name          String?
-    email         String?      @unique
-    emailVerified DateTime?
-    image         String?
-    role          Role?         @default(MEMBER)
-    accounts      Account[]
-    sessions      Session[]
-    todos         Todo[]
-    memberships   Membership[]
-}
-
-model VerificationToken {
-    identifier String
-    token      String   @unique
-    expires    DateTime
-
-    @@unique([identifier, token])
-}
-
-model Organization {
-    id      String       @id @default(cuid())
-    name    String
-    members Membership[]
-}
-
-model Membership {
-    id             String       @id @default(cuid())
-    userId         String
-    organizationId String
-    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-    role           Role
-    user           User         @relation(fields: [userId], references: [id])
-
-    @@index([userId])
-    @@index([organizationId])
+enum Plans{
+  FREE
+  TEAM
+  BUSINESS
 }
 
 enum Role {
-    ADMIN
-    MEMBER
+  ADMIN
+  MEMBER
 }
+
+model Todo {
+  id         String      @id @default(cuid())
+  title      String
+  details    String
+  done       Boolean
+  userId     String
+  createdBy  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  priority   Priority
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  dueDate    DateTime?
+  dueTime    DateTime?
+  category   Categories? 
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String?
+
+  @@index([organizationId])
+  @@index([userId])
+}
+
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model User {
+  id                     String       @id @default(cuid())
+  name                   String?
+  email                  String?      @unique
+  emailVerified          DateTime?
+  image                  String?
+  role                   Role?         @default(MEMBER)
+  accounts               Account[]
+  sessions               Session[]
+  todos                  Todo[]
+  memberships            Membership[]
+  organizations          Organization[] // New field for user's organizations
+  stripeCustomerId       String?      @unique @map(name: "stripe_customer_id")
+  stripeSubscriptionId   String?      @unique @map(name: "stripe_subscription_id")
+  stripePriceId          String?      @map(name: "stripe_price_id")
+  stripeCurrentPeriodEnd DateTime?    @map(name: "stripe_current_period_end")
+
+  @@index([email])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Organization {
+  id              String       @id @default(cuid())
+  name            String
+  members         Membership[]
+  plan            Plans
+  todos           Todo[]      // New field to store organization's todos
+  organizationCode String       @unique
+  user            User?        @relation(fields: [userId], references: [id])
+  userId          String?
+  joinedUsers     String[]    // Array to store userIds of users who joined by organizationCode
+
+  @@index([userId])
+}
+
+
+model Membership {
+  id             String       @id @default(cuid())
+  userId         String
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  role           Role
+  user           User         @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([organizationId])
+}
+
