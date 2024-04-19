@@ -21,17 +21,15 @@ export const organizationRouter = createTRPCRouter({
       // Check if the user with the provided email exists
       const user = await prisma.user.findUnique({
         where: { email },
+
       });
 
-      if (!user) {
-        throw new Error('User not found');
-      }
 
       // Create a new organization
       const organization = await prisma.organization.create({
         data: {
           name: 'New Organization', // You can set the name dynamically
-          userId: user.id,
+          userId: user?.id, // Add null check before accessing 'id' property
           plan: 'FREE', // Set the plan based on your logic
           organizationCode: (Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000).toString(), // Generate a random code
         },
@@ -40,17 +38,13 @@ export const organizationRouter = createTRPCRouter({
       // Assign the user as ADMIN of the organization
       await prisma.membership.create({
         data: {
-          userId: user.id,
+          userId: user?.id ?? '', // Add null check and provide a default value
           organizationId: organization.id,
           role: 'ADMIN',
         },
       });
 
-      return { organizationCode: organization.organizationCode };
-    } catch (error) {
-      throw new Error('Failed to create organization');
-    }
-  }),
+    }),
 
 
   joinOrganization: publicProcedure.input(joinOrganizationInput).mutation(async ({ ctx, input }) => {

@@ -16,6 +16,7 @@ import { toast } from "react-hot-toast";
 import Organization from "./orgnization";
 
 
+
 interface Todo {
   id: string;
   title: string;
@@ -64,7 +65,7 @@ export default function Home() {
 
   const [isSearchEmpty, setIsSearchEmpty] = useState(true);
 
-
+  console.log(isSearchEmpty);
 
   const [errorObj, setErrorObj] = useState<{
     title?: string;

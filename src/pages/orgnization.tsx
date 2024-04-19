@@ -4,7 +4,7 @@ import { api } from "@/utils/api";
 import { LoadingSpine } from "@/components/Loading";
 import { toast } from "react-hot-toast";
 
-export default function Organization() {
+function Organization() {
   const { data: session } = useSession();
   const [organizationCode, setOrganizationCode] = useState("");
   const [loading, setLoading] = useState(false);
@@ -75,3 +75,5 @@ export default function Organization() {
     </div>
   );
 }
+
+export default Organization;
