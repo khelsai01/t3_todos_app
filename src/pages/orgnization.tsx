@@ -10,7 +10,7 @@ const addMemberInputSchema = z.object({
 });
 
 
-export const AddMemberForm = () =>{
+export  const AddMemberForm = () =>{
   const ctx = api.useUtils();
   const [role, setRole] = useState<'ADMIN' | 'MEMBER'>('MEMBER');
   const [email , setEmail] = useState<string>('');
@@ -77,3 +77,5 @@ export const AddMemberForm = () =>{
     </form>
   );
 }
+
+export default AddMemberForm;

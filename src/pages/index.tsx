@@ -13,7 +13,7 @@ import { Header } from "@/components/header";
 import Landing from "@/components/Home";
 import { LoadingSpine } from "@/components/Loading";
 import { toast } from "react-hot-toast";
-import {AddMemberForm} from "./orgnization";
+import AddMemberForm from "./orgnization";
 
 
 interface Todo {
