@@ -16,6 +16,8 @@ import { toast } from "react-hot-toast";
 import AddMemberForm from "./orgnization";
 
 
+
+
 interface Todo {
   id: string;
   title: string;
@@ -396,6 +398,9 @@ export default function Home() {
   return (
     <div className="w-9/10 bg-gray-50">
       <Header />
+      {/* <div className="flex flex-col items-center justify-center">
+        <Page />
+      </div> */}
       {!session ? (
         <Landing />
       ) : (

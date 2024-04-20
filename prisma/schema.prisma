@@ -8,7 +8,6 @@ datasource db {
     relationMode = "prisma"
 }
 
-
 enum Categories {
     WORK
     PERSONAL
@@ -16,21 +15,19 @@ enum Categories {
 }
 
 model Todo {
-    id        String    @id @default(cuid())
+    id        String      @id @default(cuid())
     title     String
     details   String
     done      Boolean
     userId    String
-    createdBy User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    createdBy User        @relation(fields: [userId], references: [id], onDelete: Cascade)
     priority  Priority
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
+    createdAt DateTime    @default(now())
+    updatedAt DateTime    @updatedAt
     dueDate   DateTime?
     dueTime   DateTime?
-    category  Categories? 
-    
+    category  Categories?
 
-    
     @@index([userId])
 }
 
@@ -70,16 +67,20 @@ model Session {
 }
 
 model User {
-    id            String       @id @default(cuid())
-    name          String?
-    email         String?      @unique
-    emailVerified DateTime?
-    image         String?
-    role          Role?         @default(MEMBER)
-    accounts      Account[]
-    sessions      Session[]
-    todos         Todo[]
-    memberships   Membership[]
+    id                     String       @id @default(cuid())
+    name                   String?
+    email                  String?      @unique
+    emailVerified          DateTime?
+    image                  String?
+    role                   Role?        @default(MEMBER)
+    accounts               Account[]
+    sessions               Session[]
+    todos                  Todo[]
+    memberships            Membership[]
+    stripeCustomerId       String?      @unique @map(name: "stripe_customer_id")
+    stripeSubscriptionId   String?      @unique @map(name: "stripe_subscription_id")
+    stripePriceId          String?      @map(name: "stripe_price_id")
+    stripeCurrentPeriodEnd DateTime?    @map(name: "stripe_current_period_end")
 }
 
 model VerificationToken {

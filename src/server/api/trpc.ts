@@ -15,6 +15,7 @@ import { ZodError } from "zod";
 
 import { getServerAuthSession } from "@/server/auth";
 import { db } from "@/server/db";
+import { useSession } from "next-auth/react";
 // import { Role } from "@prisma/client";
 
 /**
@@ -124,7 +125,25 @@ export const publicProcedure = t.procedure;
  * @see https://trpc.io/docs/procedures
  */
 
+const middleware = t.middleware
 
+const isAuth = middleware(async (opts) => {
+  const { data: session } = useSession();
+  const user = session?.user;
+
+  if (!user || !user.id) {
+    throw new TRPCError({ code: 'UNAUTHORIZED' })
+  }
+
+  return opts.next({
+    ctx: {
+      userId: user.id,
+      user,
+    },
+  })
+})
+
+export const privateProcedure = t.procedure.use(isAuth)
 
 
 export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
