@@ -13,7 +13,8 @@ import { Header } from "@/components/header";
 import Landing from "@/components/Home";
 import { LoadingSpine } from "@/components/Loading";
 import { toast } from "react-hot-toast";
-import AddMemberForm from "./orgnization";
+import Organization from "./orgnization";
+
 
 
 
@@ -34,6 +35,7 @@ export default function Home() {
   const currentDate = new Date();
   const hours = currentDate.getHours().toString().padStart(2, '0');
   const minutes = currentDate.getMinutes().toString().padStart(2, '0');
+  const [file, setFile] = useState<File | null | undefined>(null);
   const currentTime = `${hours}:${minutes}`;
 
   const [todoData, setTodoData] = useState({
@@ -193,7 +195,6 @@ export default function Home() {
 
         if (!todo.done && isDueSoon) {
           toast(`Task "${todo.title}" due soon!`, { icon: "ℹ️" });
-          toast(`Task ,${todo.title} due soon!, { icon: "ℹ" }`);
         }
       });
     }
@@ -277,6 +278,38 @@ export default function Home() {
     },
   });
 
+
+
+
+  const handleFileChange = (event: { target: { files: FileList | null | undefined; }; }) => {
+    setFile(event.target.files ? event.target.files[0] : null);
+  }
+
+  const handleFileUpload = () => {
+    if (file) {
+
+      toast.success('File uploaded successfully.');
+    } else {
+      toast.error('Please select a file to upload.');
+    }
+  };
+
+  const handleFileRemove = () => {
+    if (file) {
+      setFile(null);
+      const fileInput = document.getElementById('file-input') as HTMLInputElement;
+      if (fileInput) {
+        fileInput.value = '';
+      }
+      toast('File removed.');
+    } else {
+      toast.error('No file to remove.');
+    }
+  };
+
+
+
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -319,7 +352,7 @@ export default function Home() {
       priority: priority,
       dueDate: new Date(todoData.dueDate ?? ""),
       dueTime: new Date(
-       `${todoData.dueDate}T${todoData.dueTime}:00`,
+        `${todoData.dueDate}T${todoData.dueTime}:00`,
       ).toISOString(),
       category: category,
     });
@@ -363,27 +396,26 @@ export default function Home() {
 
   const handleSearch = () => {
     const filteredTodos = (data ?? []).filter((todo: Todo) => {
-      const isKeywordMatch = todo.title
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
+      const isKeywordMatch = todo.title.toLowerCase().includes(searchQuery.toLowerCase());
       const isDueDateMatch =
-        dueDateFilter &&
-        todo.dueDate &&
-        new Date(todo.dueDate).toDateString() ===
-        new Date(dueDateFilter).toDateString();
+        !dueDateFilter ||
+        (todo.dueDate &&
+          new Date(todo.dueDate).toDateString() === new Date(dueDateFilter).toDateString());
 
-      if (!searchQuery) {
+      if (!searchQuery && !dueDateFilter) {
         setIsSearchEmpty(true);
-        return !dueDateFilter || isDueDateMatch;
+        return true;
       }
 
       setIsSearchEmpty(false);
 
-      return isKeywordMatch && (!dueDateFilter || isDueDateMatch);
+      return isKeywordMatch && isDueDateMatch;
     });
 
     setSearchResults(filteredTodos);
   };
+
+
   const handleClearFilter = () => {
     setCategoryFilter(null);
     setDueDateFilter(null);
@@ -404,6 +436,7 @@ export default function Home() {
       {!session ? (
         <Landing />
       ) : (
+
         <div className="flex flex-col items-center justify-center">
           <div className="m-auto flex flex-col">
             <input
@@ -424,6 +457,13 @@ export default function Home() {
             >
               Search
             </button>
+
+            <div>
+              <input type="file" onChange={handleFileChange} />
+              <button onClick={handleFileUpload}>Upload File</button>
+              <button onClick={handleFileRemove}>Remove File</button>
+              {file && <p>Selected File: {file.name}</p>}
+            </div>
 
             <input
               type="text"
@@ -518,7 +558,6 @@ export default function Home() {
             )}
           </div>
           <div>
-            <AddMemberForm />
           </div>
           <div className="flex items-center justify-between">
             <span>Sort By:</span>
@@ -588,6 +627,8 @@ export default function Home() {
             <button onClick={() => handleClearFilter()}>Clear Filters</button>
           </div>
 
+
+
           {load ? (
             <LoadingSpine />
           ) : (
@@ -619,6 +660,9 @@ export default function Home() {
                     >
                       <p className={`text-lg font-semibold`}>{todo.title}</p>
                       <p className={`text-gray-500`}>{todo.details}</p>
+                      <p className="text-sm text-gray-400">
+                        Due Date: {todo.dueDate ? todo.dueDate.toString() : ""} | Due Time: {todo.dueTime ? todo.dueTime.toString() : ""} | Category: {todo.category} | Priority: {todo.priority}
+                      </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       <EditIcon
@@ -664,6 +708,12 @@ export default function Home() {
                     >
                       <p className={`text-lg font-semibold`}>{todo.title}</p>
                       <p className={`text-gray-500`}>{todo.details}</p>
+                      <p className="text-lg text-red-400">
+                        Due Date: {todo.dueDate ? todo.dueDate.toString() : ""} 
+                      </p>
+                      <p className="text-lg text-red-400">Due Time: {todo.dueTime ? todo.dueTime.toString() : ""} </p>
+                      <p className="text-lg text-red-400">Category: {todo.category} </p>
+                      <p className="text-lg text-red-400">Priority: {todo.priority}</p>
 
                     </div>
 
@@ -688,6 +738,8 @@ export default function Home() {
 
             </div>
           )}
+
+          <Organization />
 
         </div>
 
