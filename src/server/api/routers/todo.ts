@@ -5,7 +5,7 @@ import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 
 import { TRPCError } from "@trpc/server";
-import { PLANS } from "@/pages/pricing/stripe";
+// import { PLANS } from "@/pages/pricing/stripe";
 import Stripe from "stripe";
 import { absoluteUrl } from "@/lib/utils";
 import { getUserSubscriptionPlan } from "@/lib/stripe";
@@ -85,7 +85,7 @@ export const todoRouter = createTRPCRouter({
           category: input.category,
         },
       });
-
+      console.log("organizations", await ctx.db.user.findFirst({where: {id:ctx.session?.user.id}}))
       return todo;
     }),
 
@@ -162,20 +162,20 @@ export const todoRouter = createTRPCRouter({
     const stripeSession = await stripe.checkout.sessions.create({
       success_url: billingUrl,
       cancel_url: billingUrl,
-      payment_method_types: ["card", "paypal"],
-      mode: "subscription",
-      billing_address_collection: "auto",
+      payment_method_types: ['card'],
+      mode: 'subscription',
       line_items: [
         {
-          price: PLANS.find((plan) => plan.name === "Business")?.price.priceIds.test,
+          price: 'price_id_of_selected_plan', // Replace with actual price ID
           quantity: 1,
         },
       ],
+      customer: dbUser.stripeCustomerId,
       metadata: {
         userId: userId,
       },
     });
-    console.log("success prizing")
+
     return { url: stripeSession.url };
   }),
 });

@@ -8,7 +8,7 @@ import {
 } from "next-auth";
 import { type Adapter } from "next-auth/adapters";
 
-import { env } from "@/env";
+import { env } from "@/env/env";
 import { db } from "@/server/db";
 import GoogleProvider from "next-auth/providers/google"
 import { Membership, Role } from "@prisma/client"; // Import the 'Role' type from the appropriate module

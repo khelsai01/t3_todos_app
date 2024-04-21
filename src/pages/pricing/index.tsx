@@ -7,13 +7,39 @@ import {
 
 import { cn } from "@/lib/utils";
 import { ArrowRight, Check, HelpCircle, Minus } from "lucide-react";
-import Link from "next/link";
+ 
 import { PLANS } from "./stripe";
 import MaxWidthWrapper from "./MaxWidthWrapper";
 import UpgradeButton from "./UpgradeButton";
 import { buttonVariants } from "./Button";
 import { signIn, useSession } from "next-auth/react";
 import { Button } from "@mui/material";
+import Link from "next/link";
+// import type { GetServerSideProps } from "next";
+import { db } from "@/server/db";
+
+export const GetServerSideProps = async (ctx: any) => {
+  const userId  = ctx.session.user.id
+
+  if (userId) {
+    const user = await db.user.findFirst({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (user?.stripStatus === "ACTIVE") {
+      return {
+        redirect: {
+          destination: "/pricing",
+        },
+        props: {},
+      };
+    }
+  }
+
+  return { props: {} };
+};
 
 const Page = () => {
   const { data: session } = useSession();
@@ -127,7 +153,7 @@ const Page = () => {
                           <HelpCircle className="h-4 w-4 text-zinc-500" />
                         </TooltipTrigger>
                         <TooltipContent className="w-80 p-2">
-                          How many PDFs you can upload per month.
+                          How many todos you can create per month.
                         </TooltipContent>
                       </Tooltip>
                     </div>
@@ -175,36 +201,31 @@ const Page = () => {
                   </ul>
                   <div className="border-t border-gray-200" />
                   <div className="p-5">
-                    {plan === "Free" ? (
-                      <Button
-                        // onClick={user ? "/dashboard" : "/sign-in"}
-
-                        onClick={() => {
-                          
-                          !user? void signIn("google") :"[/@page]"
-                        }}
-                        className={buttonVariants({
-                          className: "w-full",
-                          variant: "secondary",
-                        })}
-                      >
-                        {user ? "Upgrade now" : "Sign up"}
-                        <ArrowRight className="ml-1.5 h-5 w-5" />
-                      </Button>
-                    ) : user ? (
-                      <UpgradeButton />
-                    ) : (
-                      <Button
-                        
-                      onClick={() => void signIn("google")}
-                        className={buttonVariants({
-                          className: "w-full",
-                        })}
-                      >
-                        {user ? "Upgrade now" : "Sign up"}
-                        <ArrowRight className="ml-1.5 h-5 w-5" />
-                      </Button>
-                    )}
+                  {plan === 'Free' ? (
+                        <Link
+                          href={
+                            user ? '/dashboard' : '/sign-in'
+                          }
+                          className={buttonVariants({
+                            className: 'w-full',
+                            variant: 'secondary',
+                          })}>
+                          {user ? 'Upgrade now' : 'Sign up'}
+                          <ArrowRight className='h-5 w-5 ml-1.5' />
+                        </Link>
+                      ) : user ? (
+                        <UpgradeButton />
+                      ) : (
+                        <Link
+                          href='/sign-in'
+                          className={buttonVariants({
+                            className: 'w-full',
+                          })}>
+                          {user ? 'Upgrade now' : 'Sign up'}
+                          <ArrowRight className='h-5 w-5 ml-1.5' />
+                        </Link>
+                      )}
+                  
                   </div>
                 </div>
               );
