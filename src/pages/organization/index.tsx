@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { api } from "@/utils/api";
 import { LoadingSpine } from "@/components/Loading";
 import { toast } from "react-hot-toast";
+import { useRouter } from "next/router";
 
 function Organization() {
   const { data: session } = useSession();
@@ -13,6 +14,7 @@ function Organization() {
   const [loading, setLoading] = useState(false);
   const [organizationToDelete, setOrganizationToDelete] = useState("");
   const [assignData, setAssignData] = useState({ assignId: "", role: "" });
+  const router = useRouter();
 
   const { mutate: assignRole } = api.organization.assignRole.useMutation({
     onSuccess: () => {
@@ -42,6 +44,8 @@ function Organization() {
   const { mutate: createOrganizationMutation } =
     api.organization.createOrganization.useMutation({
       onSuccess: ({ organization }) => {
+        setOrganizationCode(organization.organizationCode);
+        setManagerCode(organization.managerCode ?? ""); // Fix: Use nullish coalescing operator to provide a default value
         setLoading(false);
         toast.success(
           'Organization created successfully. Organization Code: ' + organization.organizationCode + ', Manager Code: ' + organization.managerCode,
@@ -58,9 +62,22 @@ function Organization() {
     api.organization.joinOrganization.useMutation({
       onSuccess: ({ role }) => {
         setLoading(false);
+
         toast.success(`Successfully joined organization as ${role}`, {
           icon: "🤝",
         });
+
+         // Assuming you want to pass organizationCode and managerCode as props
+    const queryParams = {
+      organizationCode: organizationCode,
+      managerCode: managerCode,
+    };
+  
+    // Navigate to "/todos" with query parameters
+    void router.push({
+      pathname: "/todos",
+      query: queryParams,
+    });
       },
       onError: (error) => {
         setLoading(false);
@@ -90,11 +107,33 @@ function Organization() {
     }
   };
 
+  const handleProps = () => {
+    if (!organizationCode) {
+      toast.error("Please enter the organization code");
+      return;
+    }
+  
+    setLoading(true);
+  
+   
+  }
+
   const handleJoinOrganization = () => {
     if (!organizationCode) {
       toast.error("Please enter the organization code");
       return;
     }
+     // Assuming you want to pass organizationCode and managerCode as props
+    //  const queryParams = {
+    //   organizationCode: organizationCode,
+    //   managerCode: managerCode,
+    // };
+  
+    // // Navigate to "/todos" with query parameters
+    // void router.push({
+    //   pathname: "/todos",
+    //   query: queryParams,
+    // });
     setLoading(true);
     joinOrganizationMutation({ organizationCode, managerCode });
   };
