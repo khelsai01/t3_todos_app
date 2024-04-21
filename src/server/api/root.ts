@@ -2,6 +2,7 @@
 import { todoRouter } from "@/server/api/routers/todo";
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 import { organizationRouter } from "./routers/organization";
+import { stripeRouter } from "./routers/stripe";
 
 
 
@@ -13,6 +14,7 @@ import { organizationRouter } from "./routers/organization";
 export const appRouter = createTRPCRouter({
   todo: todoRouter,
   organization: organizationRouter,
+  stripe:stripeRouter,
 });
 
 // export type definition of API

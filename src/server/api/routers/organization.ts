@@ -20,6 +20,85 @@ const deleteOrganizationInput = z.object({
 });
 
 export const organizationRouter = createTRPCRouter({
+
+  getOrganizations: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
+    const organizations = await prisma.organization.findMany({
+      where: {
+        organizationCode: input
+      }
+    })
+   
+    return organizations;
+  }),
+
+  assignRole: publicProcedure.input(z.object({
+    organizationCode: z.string(),
+    managerCode: z.string().optional(),
+    role: z.string(),
+    
+  })).mutation(async ({ ctx, input }) => {
+    const { organizationCode, managerCode, role } = input;
+  
+    try {
+      // Check if the organization with the provided code exists
+      const organization = await prisma.organization.findUnique({
+        where: { organizationCode },
+      });
+  
+      if (!organization) {
+        throw new Error('Organization not found');
+      }
+  
+      // Verify that the provided organization code matches the expected code for the organization
+      if (organization.organizationCode !== organizationCode) {
+        throw new Error('Invalid organization code');
+      }
+  
+      // Check if the user is a manager of the organization
+      // const isManager = await prisma.membership.findFirst({
+      //   where: { userId, organizationId: organization.id, role: 'MANAGER' },
+      // });
+  
+      // if (!isManager) {
+      //   throw new Error('User is not a manager of the organization');
+      // }
+  
+      // Check if the manager code is correct
+      // if (managerCode !== organization.managerCode) {
+      //   throw new Error('Invalid manager code');
+      // }
+  
+      // Check if the role is valid
+      if (!['ADMIN', 'MANAGER', 'MEMBER'].includes(role)) {
+        throw new Error('Invalid role');
+      }
+
+      // Update the user's role in the organization
+      await prisma.user.update({
+        where: { id:ctx.session?.user?.id},
+        data: { role: role as Role },
+      });
+  console.log("updated",await prisma.user.findFirst({where: {id: ctx.session?.user?.id}}))
+      // Return a success message
+      return { message: 'Role assigned successfully' };
+    } catch (error) {
+      // Return specific error messages based on the error encountered
+      if ((error as Error).message === 'Organization not found') {
+        throw new Error('Organization not found');
+      } else if ((error as Error).message === 'Invalid organization code') {
+        throw new Error('Invalid organization code');
+      } else if ((error as Error).message === 'User is not a manager of the organization') {
+        throw new Error('User is not a manager of the organization');
+      } else if ((error as Error).message === 'Invalid manager code') {
+        throw new Error('Invalid manager code');
+      } else if ((error as Error).message === 'Invalid role') {
+        throw new Error('Invalid role');
+      } else {
+        throw new Error('Failed to assign role');
+      }
+    }
+  }),
+
   createOrganization: publicProcedure.input(createOrganizationInput).mutation(async ({ctx,input}) => {
     const { email } = input;
     const userId = ctx.session?.user.id;
@@ -59,7 +138,14 @@ export const organizationRouter = createTRPCRouter({
           role: 'ADMIN',
         },
       });
-  
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          role: 'ADMIN',
+        },
+      });
+       
+     console.log("created",await prisma.user.findFirst({where: {id: user.id}}))
       // Return success message or data as needed
       return { message: 'Organization created successfully', organization };
     } catch (error) {
@@ -130,16 +216,17 @@ export const organizationRouter = createTRPCRouter({
     const { organizationCode } = input;
     const userId = ctx.session?.user.id;
 
-    if (!userId) {
-      throw new Error('User not authenticated');
-    }
+    // if (!userId) {
+    //   throw new Error('User not authenticated');
+    // }
 
     try {
-      // Check if the user is an ADMIN
+    //   // Check if the user is an ADMIN
       const user = await prisma.user.findUnique({
         where: { id: userId },
       });
 
+      console.log(user)
       if (!user || user.role !== 'ADMIN') {
         throw new Error('User is not authorized to delete organizations');
       }

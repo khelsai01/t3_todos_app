@@ -1,4 +1,6 @@
-import { useState } from "react";
+
+
+import React, { useState } from "react";
 import { useSession } from "next-auth/react";
 import { api } from "@/utils/api";
 import { LoadingSpine } from "@/components/Loading";
@@ -9,39 +11,74 @@ function Organization() {
   const [organizationCode, setOrganizationCode] = useState("");
   const [managerCode, setManagerCode] = useState("");
   const [loading, setLoading] = useState(false);
+  const [organizationToDelete, setOrganizationToDelete] = useState("");
+  const [assignData, setAssignData] = useState({ assignId: "", role: "" });
 
-  const { mutate: createOrganizationMutation } = api.organization.createOrganization.useMutation({
-    onSuccess: ({ organization }) => {
-      setLoading(false);
-      toast.success(`Organization created successfully. Organization Code: ${organization.organizationCode}, Manager Code: ${organization.managerCode}`, { icon: "🚀" });
-    },
-    onError: (error) => {
-      setLoading(false);
-      toast.error(error.message ?? "Failed to create organization");
-    },
-  });
-
-  const { mutate: joinOrganizationMutation } = api.organization.joinOrganization.useMutation({
-    onSuccess: ({ role }) => {
-      setLoading(false);
-      toast.success(`Successfully joined organization as ${role}`, { icon: "🤝" });
-    },
-    onError: (error) => {
-      setLoading(false);
-      toast.error(error.message ?? "Failed to join organization");
-    },
-  });
-
-  const { mutate: deleteOrganizationMutation } = api.organization.deleteOrganization.useMutation({
+  const { mutate: assignRole } = api.organization.assignRole.useMutation({
     onSuccess: () => {
+      setAssignData({ assignId: "", role: "" });
       setLoading(false);
-      toast.success("Organization deleted successfully", { icon: "🗑️" });
+      toast.success("Role assigned successfully", { icon: "🤝" });
     },
     onError: (error) => {
       setLoading(false);
-      toast.error(error.message ?? "Failed to delete organization");
+      toast.error(error.message ?? "Failed to assign role");
     },
   });
+  const handlechangeRole = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setAssignData({ ...assignData, [name]: value });
+  };
+  const handleAssignRole = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    console.log(assignData);
+    assignRole({
+      ...assignData,
+      organizationCode: assignData.assignId,
+      role: assignData.role,
+    });
+  };
+  const { mutate: createOrganizationMutation } =
+    api.organization.createOrganization.useMutation({
+      onSuccess: ({ organization }) => {
+        setLoading(false);
+        toast.success(
+          'Organization created successfully. Organization Code: ' + organization.organizationCode + ', Manager Code: ' + organization.managerCode,
+          { icon: "🚀" },
+        );
+      },
+      onError: (error) => {
+        setLoading(false);
+        toast.error(error.message ?? "Failed to create organization");
+      },
+    });
+
+  const { mutate: joinOrganizationMutation } =
+    api.organization.joinOrganization.useMutation({
+      onSuccess: ({ role }) => {
+        setLoading(false);
+        toast.success(`Successfully joined organization as ${role}`, {
+          icon: "🤝",
+        });
+      },
+      onError: (error) => {
+        setLoading(false);
+        toast.error(error.message ?? "Failed to join organization");
+      },
+    });
+
+  const { mutate: deleteOrganizationMutation } =
+    api.organization.deleteOrganization.useMutation({
+      onSuccess: () => {
+        setLoading(false);
+        toast.success("Organization deleted successfully", { icon: "🗑" });
+      },
+      onError: (error) => {
+        setLoading(false);
+        toast.error(error.message ?? "Failed to delete organization");
+      },
+    });
 
   const handleCreateOrganization = () => {
     setLoading(true);
@@ -62,20 +99,16 @@ function Organization() {
     joinOrganizationMutation({ organizationCode, managerCode });
   };
 
-  const handleDeleteOrganization =  () => {
+  const handleDeleteOrganization = () => {
     setLoading(true);
     try {
-      const organizationToDelete = prompt("Enter the organization code to delete");
       if (organizationToDelete) {
         deleteOrganizationMutation({ organizationCode: organizationToDelete });
-        toast.success("Organization deleted successfully", { icon: "🗑️" });
       } else {
         setLoading(false);
-        toast.error("Invalid organization code for deletion");
       }
     } catch (error: unknown) {
       setLoading(false);
-      toast.error((error as Error).message ?? "Failed to delete organization");
     }
   };
 
@@ -91,6 +124,8 @@ function Organization() {
         Create Organization
       </button>
 
+      <br />
+      <br />
       <h1>Join Organization</h1>
       <input
         type="text"
@@ -108,14 +143,50 @@ function Organization() {
         Join Organization
       </button>
 
-      {session && session.user.role === 'ADMIN' && ( // Show delete button only for ADMIN users
-        <div>
-          <h1>Delete Organization</h1>
-          <button onClick={handleDeleteOrganization} disabled={loading}>
-            Delete Organization
+      <br />
+      <br />
+      {/* {session &&
+        session.user.role === "ADMIN" && ( // Show delete button only for ADMIN users
+     */}
+          <div>
+            <h1>Delete Organization</h1>
+            <form>
+              <input
+                type="text"
+                value={organizationToDelete}
+                placeholder="enter organization id number which you want to delete"
+                onChange={(e) => setOrganizationToDelete(e.target.value)}
+              />
+              <button onClick={handleDeleteOrganization} disabled={loading}>
+                Delete Organization
+              </button>
+            </form>
+          </div>
+        
+      <br />
+      <br />
+
+      <div>
+        <form onSubmit={handleAssignRole}>
+          <input
+            type="text"
+            name="assignId"
+            placeholder="enter organizationId"
+            value={assignData.assignId}
+            onChange={handlechangeRole}
+          />
+          <input
+            type="text"
+            name="role"
+            placeholder="enter role in Uppercase ADMIN MEMBER"
+            value={assignData.role}
+            onChange={handlechangeRole}
+          />
+          <button type="submit" disabled={loading}>
+            Assign Role
           </button>
-        </div>
-      )}
+        </form>
+      </div>
     </div>
   );
 }
