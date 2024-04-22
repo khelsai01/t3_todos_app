@@ -1,11 +1,10 @@
 
 import { Header } from '@/components/header';
-import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 
 const Home = () => {
 
-  const { data: session } = useSession();
+  
   return (
     <div className="bg-gray-100 min-h-screen">
       <Header />

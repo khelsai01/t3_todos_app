@@ -404,7 +404,6 @@ const Todos: React.FC<Props> = ({ organizationCode, managerCode }) => {
         : "",
       priority: todo.priority,
       category: todo.category ?? "WORK",
-      priority: todo.priority,
     }));
     setCategory(todo.category ?? "WORK");
     setPriority(todo.priority);

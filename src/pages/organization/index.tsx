@@ -135,74 +135,95 @@ function Organization() {
   }
 
   return (
-    <div>
-      {loading && <LoadingSpine />}
-      <h1>Create Organization</h1>
-      <button onClick={handleCreateOrganization} disabled={loading}>
+    <div className="flex flex-col items-center justify-center">
+    {loading && <LoadingSpine />}
+    
+    <div className="my-8">
+      <h1 className="text-2xl font-bold mb-4">Create Organization</h1>
+      <button
+        onClick={handleCreateOrganization}
+        disabled={loading}
+        className="px-4 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+      >
         Create Organization
       </button>
-
-      <br />
-      <br />
-      <h1>Join Organization</h1>
+    </div>
+  
+    <div className="my-8">
+      <h1 className="text-2xl font-bold mb-4">Join Organization</h1>
       <input
         type="text"
         placeholder="Enter Organization Code to Join"
         value={organizationCode}
         onChange={(e) => setOrganizationCode(e.target.value)}
+        className="border border-gray-300 rounded-md p-2 mr-2 focus:outline-none focus:border-blue-500"
       />
       <input
         type="text"
         placeholder="Enter Manager Code (Optional)"
         value={managerCode}
         onChange={(e) => setManagerCode(e.target.value)}
+        className="border border-gray-300 rounded-md p-2 mr-2 focus:outline-none focus:border-blue-500"
       />
-      <button onClick={handleJoinOrganization} disabled={loading}>
+      <button
+        onClick={handleJoinOrganization}
+        disabled={loading}
+        className="px-4 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+      >
         Join Organization
       </button>
-
-      <br />
-      <br />
-          <div>
-            <h1>Delete Organization</h1>
-            <form>
-              <input
-                type="text"
-                value={organizationToDelete}
-                placeholder="enter organization id number which you want to delete"
-                onChange={(e) => setOrganizationToDelete(e.target.value)}
-              />
-              <button onClick={handleDeleteOrganization} disabled={loading}>
-                Delete Organization
-              </button>
-            </form>
-          </div>
-        
-      <br />
-      <br />
-
-      <div>
-        <form onSubmit={handleAssignRole}>
-          <input
-            type="text"
-            name="assignId"
-            placeholder="enter organizationId"
-            value={assignData.assignId}
-            onChange={handlechangeRole}
-          />
-          <input
-            type="text"
-            name="role"
-            placeholder="enter role in Uppercase ADMIN MEMBER"
-            value={assignData.role}
-            onChange={handlechangeRole}
-          />
-          <button type="submit" disabled={loading}>
-            Assign Role
-          </button>
-        </form>
-      </div>
     </div>
+  
+    <div className="my-8">
+      <h1 className="text-2xl font-bold mb-4">Delete Organization</h1>
+      <form>
+        <input
+          type="text"
+          value={organizationToDelete}
+          placeholder="Enter organization ID to delete"
+          onChange={(e) => setOrganizationToDelete(e.target.value)}
+          className="border border-gray-300 rounded-md p-2 mr-2 focus:outline-none focus:border-blue-500"
+        />
+        <button
+          onClick={handleDeleteOrganization}
+          disabled={loading}
+          className="px-4 py-2 bg-red-500 text-white rounded-md shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
+        >
+          Delete Organization
+        </button>
+      </form>
+    </div>
+  
+    <div className="my-8">
+      <h1 className="text-2xl font-bold mb-4">Assign Role</h1>
+      <form onSubmit={handleAssignRole} className="flex items-center">
+        <input
+          type="text"
+          name="assignId"
+          placeholder="Enter organization ID"
+          value={assignData.assignId}
+          onChange={handlechangeRole}
+          className="border border-gray-300 rounded-md p-2 mr-2 focus:outline-none focus:border-blue-500"
+        />
+        <input
+          type="text"
+          name="role"
+          placeholder="Enter role (ADMIN/MEMBER)"
+          value={assignData.role}
+          onChange={handlechangeRole}
+          className="border border-gray-300 rounded-md p-2 mr-2 focus:outline-none focus:border-blue-500"
+        />
+        <button
+          type="submit"
+          disabled={loading}
+          className="px-4 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+        >
+          Assign Role
+        </button>
+      </form>
+    </div>
+  </div>
+  
   );
 }
 
