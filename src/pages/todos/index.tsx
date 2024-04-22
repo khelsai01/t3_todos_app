@@ -13,7 +13,7 @@ import { Header } from "@/components/header";
 import Landing from "@/components/Home";
 import { LoadingSpine } from "@/components/Loading";
 import { toast } from "react-hot-toast";
-import { useRouter } from "next/router"
+import { useRouter } from "next/router";
 import { Categories, Priority } from "@prisma/client";
 
 type Todo = {
@@ -24,15 +24,15 @@ type Todo = {
   priority: "LOW" | "MEDIUM" | "HIGH";
   dueDate: Date | null;
   dueTime: Date | null;
-  category: "WORK" | "PERSONAL" | "FITNESS" | null;
-  organizationCode: string;
+  category: "WORK" | "PERSONAL" | "FITNESS";
+  organizationCode: string | null;
 };
 
 export default function Home() {
   const { data: session } = useSession();
   const currentDate = new Date();
-  const hours = currentDate.getHours().toString().padStart(2, '0');
-  const minutes = currentDate.getMinutes().toString().padStart(2, '0');
+  const hours = currentDate.getHours().toString().padStart(2, "0");
+  const minutes = currentDate.getMinutes().toString().padStart(2, "0");
   const [file, setFile] = useState<File | null | undefined>(null);
   const router = useRouter();
   const { organizationCode, managerCode } = router.query;
@@ -50,11 +50,13 @@ export default function Home() {
   const [editId, setEditId] = useState<string>("");
   const [load, setLoad] = useState<boolean>(false);
   const [priority, setPriority] = useState<"LOW" | "MEDIUM" | "HIGH">("LOW");
-  const [category, setCategory] = useState<"WORK" | "PERSONAL" | "FITNESS">("WORK");
-  const [sortedTodos, setSortedTodos] = useState<Todo[]>([]);
-  const [sortBy, setSortBy] = useState<"dueDate" | "priority" | "completion" | "category">(
-    "dueDate",
+  const [category, setCategory] = useState<"WORK" | "PERSONAL" | "FITNESS">(
+    "WORK",
   );
+  const [sortedTodos, setSortedTodos] = useState<Todo[]>([]);
+  const [sortBy, setSortBy] = useState<
+    "dueDate" | "priority" | "completion" | "category"
+  >("dueDate");
   const [dueDateFilter, setDueDateFilter] = useState<Date | null>(null);
   const [priorityFilter, setPriorityFilter] = useState<
     "LOW" | "MEDIUM" | "HIGH" | null
@@ -69,8 +71,6 @@ export default function Home() {
 
   const [isSearchEmpty, setIsSearchEmpty] = useState(true);
 
-
-
   console.log(isSearchEmpty);
 
   const [errorObj, setErrorObj] = useState<{
@@ -80,31 +80,17 @@ export default function Home() {
 
   const ctx = api.useUtils();
   const { data, isLoading: todosLoading } = api.todo.getTodosByUser.useQuery(
-    organizationCode as string
+    organizationCode as string,
   );
   const [searchResults, setSearchResults] = useState<Todo[]>([]);
 
-
   // const Organizations = api.organization.allOrganization.useQuery();
-
-
 
   // console.log(Organizations.data);
 
-
   useEffect(() => {
     if (sortBy === "dueDate") {
-      const sortedByDueDate: Todo[] = [...(data ?? [])].map(todo => ({
-        id: todo.id,
-        title: todo.title,
-        details: todo.details,
-        done: todo.done,
-        priority: todo.priority,
-        dueDate: todo.dueDate,
-        dueTime: todo.dueTime,
-        category: todo.category,
-        organizationCode: todo.organizationCode ?? "",
-      })).sort((a, b) => {
+      const sortedByDueDate = [...(data ?? [])].sort((a, b) => {
         if (!a.dueDate && !b.dueDate) return 0;
         if (!a.dueDate) return 1;
         if (!b.dueDate) return -1;
@@ -112,23 +98,12 @@ export default function Home() {
       });
       setSortedTodos(sortedByDueDate);
     } else if (sortBy === "priority") {
-      const sortedByPriority: Todo[] = [...(data ?? [])].map(todo => ({
-        id: todo.id,
-        title: todo.title,
-        details: todo.details,
-        done: todo.done,
-        priority: todo.priority,
-        dueDate: todo.dueDate,
-        dueTime: todo.dueTime,
-        category: todo.category,
-        organizationCode: todo.organizationCode,
-      })).sort((a, b) => {
+      const sortedByPriority = [...(data ?? [])].sort((a, b) => {
         const priorityOrder = { LOW: 0, MEDIUM: 1, HIGH: 2 };
         return priorityOrder[a.priority] - priorityOrder[b.priority];
       });
       setSortedTodos(sortedByPriority);
-    }
-    else if (sortBy === "category") {
+    } else if (sortBy === "category") {
       const sortedByCategory = [...(data ?? [])].sort((a, b) => {
         const categoryOrder = { WORK: 0, PERSONAL: 1, FITNESS: 2 };
 
@@ -140,10 +115,7 @@ export default function Home() {
       }) as Todo[];
 
       setSortedTodos(sortedByCategory);
-    }
-
-
-    else if (sortBy === "completion") {
+    } else if (sortBy === "completion") {
       const sortedByCompletion: Todo[] = [...(data ?? [])] as Todo[]; // Cast data to Todo[]
       sortedByCompletion.sort((a, b) => {
         return a.done === b.done ? 0 : a.done ? 1 : -1;
@@ -152,7 +124,9 @@ export default function Home() {
     }
   }, [data, sortBy]);
 
-  const handleSortBy = (criteria: "dueDate" | "priority" | "category" | "completion") => {
+  const handleSortBy = (
+    criteria: "dueDate" | "priority" | "category" | "completion",
+  ) => {
     setSortBy(criteria);
   };
 
@@ -184,7 +158,6 @@ export default function Home() {
       );
     }
 
-
     if (completionFilter !== null) {
       filteredTodos = filteredTodos.filter(
         (todo) => todo.done === completionFilter,
@@ -203,11 +176,19 @@ export default function Home() {
       );
     }
     setSortedTodos(filteredTodos as Todo[]);
-  }, [data, sortBy, dueDateFilter, priorityFilter, categoryFilter, completionFilter]);
+  }, [
+    data,
+    sortBy,
+    dueDateFilter,
+    priorityFilter,
+    categoryFilter,
+    completionFilter,
+  ]);
 
   useEffect(() => {
     if (!todosLoading && data) {
-      data.forEach((todo) => { // Remove the type annotation for the 'todo' parameter
+      data.forEach((todo) => {
+        // Remove the type annotation for the 'todo' parameter
         const isDueSoon = checkDueDate(todo.dueDate);
 
         if (!todo.done && isDueSoon) {
@@ -295,37 +276,34 @@ export default function Home() {
     },
   });
 
-
-
-
-  const handleFileChange = (event: { target: { files: FileList | null | undefined; }; }) => {
+  const handleFileChange = (event: {
+    target: { files: FileList | null | undefined };
+  }) => {
     setFile(event.target.files ? event.target.files[0] : null);
-  }
+  };
 
   const handleFileUpload = () => {
     if (file) {
-
-      toast.success('File uploaded successfully.');
+      toast.success("File uploaded successfully.");
     } else {
-      toast.error('Please select a file to upload.');
+      toast.error("Please select a file to upload.");
     }
   };
 
   const handleFileRemove = () => {
     if (file) {
       setFile(null);
-      const fileInput = document.getElementById('file-input') as HTMLInputElement;
+      const fileInput = document.getElementById(
+        "file-input",
+      ) as HTMLInputElement;
       if (fileInput) {
-        fileInput.value = '';
+        fileInput.value = "";
       }
-      toast('File removed.');
+      toast("File removed.");
     } else {
-      toast.error('No file to remove.');
+      toast.error("No file to remove.");
     }
   };
-
-
-
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -341,7 +319,7 @@ export default function Home() {
 
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setTodoData(prevData => ({ ...prevData, dueTime: value }));
+    setTodoData((prevData) => ({ ...prevData, dueTime: value }));
   };
 
   const validateForm = () => {
@@ -374,8 +352,6 @@ export default function Home() {
       category: category,
       OrganizationCode: organizationCode as string,
     });
-
-
   };
 
   console.log(organizationCode);
@@ -388,18 +364,13 @@ export default function Home() {
       dueDate: todo.dueDate
         ? new Date(todo.dueDate).toISOString().split("T")[0]
         : "",
-      dueTime: todo.dueTime
-        ? prevData.dueTime
-        : "",
+      dueTime: todo.dueTime ? prevData.dueTime : "",
       category: todo.category ?? "WORK",
     }));
     setCategory(todo.category ?? "WORK");
     setPriority(todo.priority);
     setEditId(todo.id);
   };
-
-
-
 
   const handleEditsubmit = () => {
     setLoad(true);
@@ -417,26 +388,44 @@ export default function Home() {
   };
 
   const handleSearch = () => {
-    const filteredTodos = (data ?? []).filter((todo: { id: string; title: string; details: string; done: boolean; userId: string; priority: Priority; createdAt: Date; updatedAt: Date; dueDate: Date | null; dueTime: Date | null; category: Categories | null; organizationId: string | null; organizationCode: string | null; }) => {
-      const isKeywordMatch = todo.title.toLowerCase().includes(searchQuery.toLowerCase());
-      const isDueDateMatch =
-        !dueDateFilter ||
-        (todo.dueDate &&
-          new Date(todo.dueDate).toDateString() === new Date(dueDateFilter).toDateString());
+    const filteredTodos = (data ?? []).filter(
+      (todo: {
+        id: string;
+        title: string;
+        details: string;
+        done: boolean;
+        userId: string;
+        priority: Priority;
+        createdAt: Date;
+        updatedAt: Date;
+        dueDate: Date | null;
+        dueTime: Date | null;
+        category: Categories | null;
+        organizationId: string | null;
+        organizationCode: string | null;
+      }) => {
+        const isKeywordMatch = todo.title
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase());
+        const isDueDateMatch =
+          !dueDateFilter ||
+          (todo.dueDate &&
+            new Date(todo.dueDate).toDateString() ===
+              new Date(dueDateFilter).toDateString());
 
-      if (!searchQuery && !dueDateFilter) {
-        setIsSearchEmpty(true);
-        return true;
-      }
+        if (!searchQuery && !dueDateFilter) {
+          setIsSearchEmpty(true);
+          return true;
+        }
 
-      setIsSearchEmpty(false);
+        setIsSearchEmpty(false);
 
-      return isKeywordMatch && isDueDateMatch;
-    });
+        return isKeywordMatch && isDueDateMatch;
+      },
+    );
 
     setSearchResults(filteredTodos as Todo[]);
   };
-
 
   const handleClearFilter = () => {
     setCategoryFilter(null);
@@ -455,7 +444,6 @@ export default function Home() {
       {!session ? (
         <Landing />
       ) : (
-
         <div className="flex flex-col items-center justify-center">
           <div className="m-auto flex flex-col">
             <input
@@ -465,8 +453,9 @@ export default function Home() {
               onChange={(e) => {
                 setSearchQuery(e.target.value);
               }}
-              className={`my-4 rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none ${errorObj.details ? "border-red-500" : ""
-                }`}
+              className={`my-4 rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none ${
+                errorObj.details ? "border-red-500" : ""
+              }`}
             />
             <button
               onClick={() => {
@@ -490,8 +479,9 @@ export default function Home() {
               placeholder="Title"
               value={todoData.title}
               onChange={handleChange}
-              className={`my-4 rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none ${errorObj.details ? "border-red-500" : ""
-                }`}
+              className={`my-4 rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none ${
+                errorObj.details ? "border-red-500" : ""
+              }`}
             />
             {errorObj.title && (
               <p className="my-1 text-red-500">{errorObj.title}</p>
@@ -501,8 +491,9 @@ export default function Home() {
               name="details"
               value={todoData.details}
               onChange={handleChange}
-              className={`my-4 rounded-md border border-gray-300 p-2 focus:outline-none ${errorObj.details ? "border-red-500" : ""
-                }`}
+              className={`my-4 rounded-md border border-gray-300 p-2 focus:outline-none ${
+                errorObj.details ? "border-red-500" : ""
+              }`}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && editId === "") {
                   e.preventDefault();
@@ -556,7 +547,6 @@ export default function Home() {
                 value={todoData.dueTime ?? ""}
                 onChange={handleTimeChange}
               />
-
             </div>
 
             {editId ? (
@@ -576,8 +566,7 @@ export default function Home() {
               </button>
             )}
           </div>
-          <div>
-          </div>
+          <div></div>
           <div className="flex items-center justify-between">
             <span>Sort By:</span>
             <div>
@@ -646,121 +635,129 @@ export default function Home() {
             <button onClick={() => handleClearFilter()}>Clear Filters</button>
           </div>
 
-
-
           {load ? (
             <LoadingSpine />
           ) : (
             <div className="my-4 w-1/2 gap-3">
               {searchQuery !== ""
                 ? searchResults.map((todo: Todo) => (
-                  <div
-                    key={todo.id}
-                    className={`mb-2 mt-4 flex items-center gap-2 rounded-md bg-gradient-to-r from-gray-200 via-green-200 to-blue-300 p-3 ${todo.done ? "line-through" : ""
+                    <div
+                      key={todo.id}
+                      className={`mb-2 mt-4 flex items-center gap-2 rounded-md bg-gradient-to-r from-gray-200 via-green-200 to-blue-300 p-3 ${
+                        todo.done ? "line-through" : ""
                       }`}
-                  >
-                    <input
-                      type="checkbox"
-                      style={{ zoom: 1.1 }}
-                      checked={!!todo.done}
-                      className="form-checkbox h-6 w-6 text-teal-400
+                    >
+                      <input
+                        type="checkbox"
+                        style={{ zoom: 1.1 }}
+                        checked={!!todo.done}
+                        className="form-checkbox h-6 w-6 text-teal-400
                       focus:ring-teal-400"
-                      onChange={() => {
-                        setDoneMutate({
-                          id: todo.id,
-                          done: todo.done ? false : true,
-                        });
-                        setLoad(true);
-                      }}
-                    />
-                    <div
-                      className={`flex w-3/4 flex-col justify-start ${todo.done ? "line-through" : ""
-                        }`}
-                    >
-                      <p className={`text-lg font-semibold`}>{todo.title}</p>
-                      <p className={`text-gray-500`}>{todo.details}</p>
-                      <p className="text-sm text-gray-400">
-                        Due Date: {todo.dueDate ? todo.dueDate.toString() : ""} | Due Time: {todo.dueTime ? todo.dueTime.toString() : ""} | Category: {todo.category} | Priority: {todo.priority}
-                      </p>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      <EditIcon
-                        sx={{ color: "green" }}
-                        onClick={() => handleEdit(todo)}
-                        className="m-auto w-[70%] cursor-pointer"
-                      />
-                      <DeleteForeverIcon
-                        sx={{ color: "red" }}
-                        onClick={() => {
-                          deleteMutate(todo.id);
+                        onChange={() => {
+                          setDoneMutate({
+                            id: todo.id,
+                            done: todo.done ? false : true,
+                          });
                           setLoad(true);
                         }}
-                        className="m-auto w-[70%] cursor-pointer"
                       />
+                      <div
+                        className={`flex w-3/4 flex-col justify-start ${
+                          todo.done ? "line-through" : ""
+                        }`}
+                      >
+                        <p className={`text-lg font-semibold`}>{todo.title}</p>
+                        <p className={`text-gray-500`}>{todo.details}</p>
+                        <p className="text-sm text-gray-400">
+                          Due Date:{" "}
+                          {todo.dueDate ? todo.dueDate.toString() : ""} | Due
+                          Time: {todo.dueTime ? todo.dueTime.toString() : ""} |
+                          Category: {todo.category} | Priority: {todo.priority}
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <EditIcon
+                          sx={{ color: "green" }}
+                          onClick={() => handleEdit(todo)}
+                          className="m-auto w-[70%] cursor-pointer"
+                        />
+                        <DeleteForeverIcon
+                          sx={{ color: "red" }}
+                          onClick={() => {
+                            deleteMutate(todo.id);
+                            setLoad(true);
+                          }}
+                          className="m-auto w-[70%] cursor-pointer"
+                        />
+                      </div>
                     </div>
-                  </div>
-                ))
+                  ))
                 : sortedTodos.map((todo: Todo, index: number) => (
-                  <div
-                    key={index}
-                    className={`mb-2 mt-4 flex items-center gap-2 rounded-md bg-gradient-to-r from-gray-200 via-green-200 to-blue-300 p-3 ${todo.done ? "line-through" : ""
-                      }`}
-                  >
-                    <input
-                      type="checkbox"
-                      style={{ zoom: 1.1 }}
-                      checked={!!todo.done}
-                      className="form-checkbox h-6 w-6 text-teal-400
-                                 focus:ring-teal-400"
-                      onChange={() => {
-                        setDoneMutate({
-                          id: todo.id,
-                          done: todo.done ? false : true,
-                        });
-                        setLoad(true);
-                      }}
-                    />
-
                     <div
-                      className={`flex w-3/4 flex-col justify-start ${todo.done ? "line-through" : ""
-                        }`}
+                      key={index}
+                      className={`mb-2 mt-4 flex items-center gap-2 rounded-md bg-gradient-to-r from-gray-200 via-green-200 to-blue-300 p-3 ${
+                        todo.done ? "line-through" : ""
+                      }`}
                     >
-                      <p className={`text-lg font-semibold`}>{todo.title}</p>
-                      <p className={`text-gray-500`}>{todo.details}</p>
-                      <p className="text-lg text-red-400">
-                        Due Date: {todo.dueDate ? todo.dueDate.toString() : ""} 
-                      </p>
-                      <p className="text-lg text-red-400">Due Time: {todo.dueTime ? todo.dueTime.toString() : ""} </p>
-                      <p className="text-lg text-red-400">Category: {todo.category} </p>
-                      <p className="text-lg text-red-400">Priority: {todo.priority}</p>
-
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      <EditIcon
-                        sx={{ color: "green" }}
-                        onClick={() => handleEdit(todo)}
-                        className="m-auto w-[70%] cursor-pointer"
-                      />
-
-                      <DeleteForeverIcon
-                        sx={{ color: "red" }}
-                        onClick={() => {
-                          deleteMutate(todo.id);
+                      <input
+                        type="checkbox"
+                        style={{ zoom: 1.1 }}
+                        checked={!!todo.done}
+                        className="form-checkbox h-6 w-6 text-teal-400
+                                 focus:ring-teal-400"
+                        onChange={() => {
+                          setDoneMutate({
+                            id: todo.id,
+                            done: todo.done ? false : true,
+                          });
                           setLoad(true);
                         }}
-                        className="m-auto w-[70%] cursor-pointer"
                       />
-                    </div>
-                  </div>
-                ))}
 
+                      <div
+                        className={`flex w-3/4 flex-col justify-start ${
+                          todo.done ? "line-through" : ""
+                        }`}
+                      >
+                        <p className={`text-lg font-semibold`}>{todo.title}</p>
+                        <p className={`text-gray-500`}>{todo.details}</p>
+                        <p className="text-lg text-red-400">
+                          Due Date:{" "}
+                          {todo.dueDate ? todo.dueDate.toString() : ""}
+                        </p>
+                        <p className="text-lg text-red-400">
+                          Due Time:{" "}
+                          {todo.dueTime ? todo.dueTime.toString() : ""}{" "}
+                        </p>
+                        <p className="text-lg text-red-400">
+                          Category: {todo.category}{" "}
+                        </p>
+                        <p className="text-lg text-red-400">
+                          Priority: {todo.priority}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2">
+                        <EditIcon
+                          sx={{ color: "green" }}
+                          onClick={() => handleEdit(todo)}
+                          className="m-auto w-[70%] cursor-pointer"
+                        />
+
+                        <DeleteForeverIcon
+                          sx={{ color: "red" }}
+                          onClick={() => {
+                            deleteMutate(todo.id);
+                            setLoad(true);
+                          }}
+                          className="m-auto w-[70%] cursor-pointer"
+                        />
+                      </div>
+                    </div>
+                  ))}
             </div>
           )}
-
-
         </div>
-
       )}
     </div>
   );

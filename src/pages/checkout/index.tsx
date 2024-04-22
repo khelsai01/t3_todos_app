@@ -16,7 +16,7 @@ export const GetServerSideProps = async (ctx: any) => {
     if (account?.stripStatus === "INACTIVE") {
       return {
         redirect: {
-          destination: "/packages",
+          destination: "/pricing",
         },
       };
     }

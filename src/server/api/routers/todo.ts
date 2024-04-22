@@ -54,7 +54,7 @@ export const todoRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const todos = await ctx.db.todo.findMany({
         where: {
-          organizationId: input,
+          organizationCode: input,
         },
         orderBy: {
           createdAt: "desc",
@@ -83,7 +83,7 @@ export const todoRouter = createTRPCRouter({
           dueDate: input.dueDate,
           dueTime: input.dueTime,
           category: input.category,
-          organizationCode: input.OrganizationCode,
+          organizationCode: input.OrganizationCode ?? "",
         },
       });
       console.log("organizations", await ctx.db.user.findFirst({where: {id:ctx.session?.user.id}}))
