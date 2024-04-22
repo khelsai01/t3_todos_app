@@ -46,6 +46,8 @@ const setEditInput = z.object({
   dueDate: z.date().optional(),
   dueTime: z.string().optional(),
   category: z.enum(["WORK", "PERSONAL", "FITNESS"]).optional(),
+  OrganizationCode: z.string().optional(),
+
 });
 
 export const todoRouter = createTRPCRouter({

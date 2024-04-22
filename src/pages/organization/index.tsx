@@ -6,6 +6,7 @@ import { api } from "@/utils/api";
 import { LoadingSpine } from "@/components/Loading";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/router";
+import Todos from "../todos";
 
 function Organization() {
   const { data: session } = useSession();
@@ -124,18 +125,22 @@ function Organization() {
       return;
     }
      // Assuming you want to pass organizationCode and managerCode as props
-    //  const queryParams = {
-    //   organizationCode: organizationCode,
-    //   managerCode: managerCode,
-    // };
+     {/** const queryParams = {
+      organizationCode: organizationCode,
+      managerCode: managerCode,
+     };
   
     // // Navigate to "/todos" with query parameters
-    // void router.push({
-    //   pathname: "/todos",
-    //   query: queryParams,
-    // });
+     void router.push({
+      pathname: "/todos",
+       query: queryParams,
+     });
+
+     
+      */}
     setLoading(true);
     joinOrganizationMutation({ organizationCode, managerCode });
+    return <Todos organizationCode={organizationCode} managerCode={managerCode}  />;
   };
 
   const handleDeleteOrganization = () => {

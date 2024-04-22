@@ -1,20 +1,21 @@
 import React, { useState } from 'react';
 import Organization from './organization';
 import { Header } from '@/components/header';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 
-const Index = () => {
-  const [showOrganization, setShowOrganization] = useState(false);
+const Home = () => {
 
+  const { data: session } = useSession();
+  const user = session?.user;
   return (
     <div>
       <Header />
       <h1>Kuch Data ..</h1>
-      <button onClick={() => setShowOrganization(true)}>Show Organization</button>
-      
-      {showOrganization && <Organization />}
+      <Link href={"/organization"}>Show Organization</Link>
     </div>
   );
 };
 
-export default Index;
+export default Home;
 

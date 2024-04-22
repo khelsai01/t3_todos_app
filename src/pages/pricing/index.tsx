@@ -225,13 +225,13 @@ const Page = () => {
                   {plan === 'Free' ? (
                         <Link
                           href={
-                            user ? '/' : '/sign-in'
+                            user ? '/todos' : '/sign-in'
                           }
                           className={buttonVariants({
                             className: 'w-full',
                             variant: 'secondary',
                           })}>
-                          {user ? 'Upgrade now' : 'Sign up'}
+                          {user ? 'TRY FREE' : 'Sign in'}
                           <ArrowRight className='h-5 w-5 ml-1.5' />
                         </Link>
                       ) : user ? (
@@ -240,7 +240,7 @@ const Page = () => {
                         >Upgrade Now</Button>
                       ) : (
                         <Link
-                          href='/'
+                          href='/organizaton'
                           className={buttonVariants({
                             className: 'w-full',
                           })}>

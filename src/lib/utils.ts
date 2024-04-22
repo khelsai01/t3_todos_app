@@ -1,3 +1,5 @@
+/* eslint-disable  @typescript-eslint/consistent-type-imports */
+
 import { type ClassValue, clsx } from 'clsx'
 import { Metadata } from 'next'
 import { twMerge } from 'tailwind-merge'

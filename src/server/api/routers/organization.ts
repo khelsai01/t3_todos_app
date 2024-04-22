@@ -27,10 +27,10 @@ export const organizationRouter = createTRPCRouter({
   }),
   
 
-  getOrganizations: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
+  getOrganizations: publicProcedure.input(z.string()).query(async (opts) => {
     const organizations = await prisma.organization.findMany({
       where: {
-        organizationCode: input
+        organizationCode: opts.input
       }
     })
    
@@ -43,7 +43,7 @@ export const organizationRouter = createTRPCRouter({
     role: z.string(),
     
   })).mutation(async ({ ctx, input }) => {
-    const { organizationCode, managerCode, role } = input;
+    const { organizationCode,role } = input;
   
     try {
       const organization = await prisma.organization.findUnique({

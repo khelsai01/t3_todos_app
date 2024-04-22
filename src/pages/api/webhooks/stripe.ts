@@ -48,64 +48,6 @@ export default async function handler(
         break;
       }
 
-      // case "checkout.session.completed": {
-      //   const payment = event.data.object;
-
-      //   if (payment.mode === "payment") {
-      //     await db.accounts.update({
-      //       where: {
-      //           userId: payment.metadata!.userId,
-      //       },
-      //       data: {
-      //         stripStatus: "ACTIVE",
-      //         package: "LIFETIME",
-      //       },
-      //     });
-      //   }
-      //   break;
-      // }
-
-      // case "customer.subscription.updated": {
-      //   const subscription = event.data.object;
-
-      //   if (subscription.cancel_at_period_end) {
-      //     await db.accounts.update({
-      //       where: {
-      //           userId: subscription.metadata.userId,
-      //       },
-      //       data: {
-      //         stripStatus: "CANCELLED",
-      //       },
-      //     });
-      //   } else {
-      //     await db.accounts.update({
-      //       where: {
-      //           userId: subscription.metadata.userId,
-      //       },
-      //       data: {
-      //         stripStatus: "ACTIVE",
-      //       },
-      //     });
-      //   }
-      //   break;
-      // }
-
-      // case "customer.subscription.deleted": {
-      //   const subscription = event.data.object;
-
-      //   await db.accounts.update({
-      //     where: {
-      //       userId: subscription.metadata.userId,
-      //     },
-      //     data: {
-      //       stripStatus: "INACTIVE",
-      //       package: null,
-      //       stripeCustomerId: null,
-      //     },
-      //   });
-
-      //   break;
-      // }
     }
     response.status(200).json({ success: true });
   } catch (error) {
