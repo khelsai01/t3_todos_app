@@ -15,6 +15,7 @@ import { LoadingSpine } from "@/components/Loading";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/router"
 import { Categories, Priority } from "@prisma/client";
+// import Login from "../auth-callback";
 
 interface Todo {
   id: string;
@@ -391,6 +392,7 @@ export default function Home() {
       dueTime: todo.dueTime
         ? prevData.dueTime
         : "",
+      priority: todo.priority,
       category: todo.category ?? "WORK",
     }));
     setCategory(todo.category ?? "WORK");
@@ -449,319 +451,324 @@ export default function Home() {
     return <LoadingSpine />;
   }
 
+  // if (!session) {
+  //   return <Login/> 
+  // }
+
   return (
     <div className="w-9/10 bg-gray-50">
       <Header />
-      {!session ? (
-        <Landing />
-      ) : (
 
-        <div className="flex flex-col items-center justify-center">
-          <div className="m-auto flex flex-col">
+      <div className="flex flex-col items-center justify-center">
+        <div className="m-auto flex flex-col">
+          <input
+            type="text"
+            placeholder="Search by keyword or due date"
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+            }}
+            className={`my-4 rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none ${errorObj.details ? "border-red-500" : ""
+              }`}
+          />
+          <button
+            onClick={() => {
+              handleSearch();
+            }}
+            className="my-3 rounded-md bg-blue-400 px-4 py-2 text-white shadow hover:bg-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50"
+          >
+            Search
+          </button>
+
+          <div className="flex items-center justify-between my-4">
+            <label htmlFor="file-upload" className="cursor-pointer bg-blue-400 text-white px-4 py-2 rounded-md shadow hover:bg-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50">
+              Upload File
+            </label>
             <input
-              type="text"
-              placeholder="Search by keyword or due date"
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-              }}
-              className={`my-4 rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none ${errorObj.details ? "border-red-500" : ""
-                }`}
+              id="file-upload"
+              type="file"
+              className="hidden"
+              onChange={handleFileChange}
             />
             <button
-              onClick={() => {
-                handleSearch();
-              }}
-              className="my-3 rounded-md bg-blue-400 px-4 py-2 text-white shadow hover:bg-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50"
+              onClick={handleFileRemove}
+              className="bg-red-500 text-white px-4 py-2 rounded-md shadow hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
             >
-              Search
+              Remove File
             </button>
-
-            <div>
-              <input type="file" onChange={handleFileChange} />
-              <button onClick={handleFileUpload}>Upload File</button>
-              <button onClick={handleFileRemove}>Remove File</button>
-              {file && <p>Selected File: {file.name}</p>}
-            </div>
-
-            <input
-              type="text"
-              name="title"
-              placeholder="Title"
-              value={todoData.title}
-              onChange={handleChange}
-              className={`my-4 rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none ${errorObj.details ? "border-red-500" : ""
-                }`}
-            />
-            {errorObj.title && (
-              <p className="my-1 text-red-500">{errorObj.title}</p>
-            )}
-            <textarea
-              placeholder="Details of todo..."
-              name="details"
-              value={todoData.details}
-              onChange={handleChange}
-              className={`my-4 rounded-md border border-gray-300 p-2 focus:outline-none ${errorObj.details ? "border-red-500" : ""
-                }`}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && editId === "") {
-                  e.preventDefault();
-                  if (todoData.title !== "" && todoData.details !== "") {
-                    handleAddTodo();
-                  }
-                } else if (e.key === "Enter" && editId !== "") {
-                  e.preventDefault();
-                  if (todoData.title !== "" && todoData.details !== "") {
-                    handleEditsubmit();
-                  }
-                }
-              }}
-            />
-            {errorObj.details && (
-              <p className="my-1 text-red-500">{errorObj.details}</p>
-            )}
-            <div className="w-full border border-gray-300">
-              <select
-                name="priority"
-                value={priority}
-                onChange={(e) =>
-                  setPriority(e.target.value as "LOW" | "MEDIUM" | "HIGH")
-                }
-              >
-                <option value="LOW">Low</option>
-                <option value="MEDIUM">Medium</option>
-                <option value="HIGH">High</option>
-              </select>
-              <select
-                name="category"
-                value={category}
-                onChange={(e) =>
-                  setCategory(e.target.value as "WORK" | "PERSONAL" | "FITNESS")
-                }
-              >
-                <option value="WORK">WORK</option>
-                <option value="PERSONAL">PERSONAL</option>
-                <option value="FITNESS">FITNESS</option>
-              </select>
-              <input
-                type="date"
-                name="dueDate"
-                value={todoData.dueDate ?? ""}
-                onChange={handleDateChange}
-              />
-
-              <input
-                type="time"
-                name="dueTime"
-                value={todoData.dueTime ?? ""}
-                onChange={handleTimeChange}
-              />
-
-            </div>
-
-            {editId ? (
-              <button
-                disabled={!!errorObj.title || !!errorObj.details}
-                onClick={handleEditsubmit}
-                className="my-3 rounded-md bg-blue-400 px-4 py-2 text-white shadow hover:bg-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50"
-              >
-                Save Edit
-              </button>
-            ) : (
-              <button
-                onClick={handleAddTodo}
-                className="my-3 rounded-md bg-blue-400 px-4 py-2 text-white shadow hover:bg-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50"
-              >
-                Add Todo
-              </button>
-            )}
-          </div>
-          <div>
-          </div>
-          <div className="flex items-center justify-between">
-            <span>Sort By:</span>
-            <div>
-              <button onClick={() => handleSortBy("dueDate")}>Due Date</button>
-              <button onClick={() => handleSortBy("priority")}>Priority</button>
-              <button onClick={() => handleSortBy("category")}>Category</button>
-              <button onClick={() => handleSortBy("completion")}>
-                Completion
-              </button>
-            </div>
+            {file && <p className="ml-2">{file.name}</p>}
           </div>
 
-          <div className="flex gap-3">
-            <input
-              type="date"
-              value={
-                dueDateFilter ? dueDateFilter.toISOString().split("T")[0] : ""
+          <input
+            type="text"
+            name="title"
+            placeholder="Title"
+            value={todoData.title}
+            onChange={handleChange}
+            className={`my-4 rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none ${errorObj.title ? "border-red-500" : ""
+              }`}
+          />
+          {errorObj.title && <p className="my-1 text-red-500">{errorObj.title}</p>}
+          <textarea
+            placeholder="Details of todo..."
+            name="details"
+            value={todoData.details}
+            onChange={handleChange}
+            className={`my-4 rounded-md border border-gray-300 p-2 focus:outline-none ${errorObj.details ? "border-red-500" : ""
+              }`}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && editId === "") {
+                e.preventDefault();
+                if (todoData.title !== "" && todoData.details !== "") {
+                  handleAddTodo();
+                }
+              } else if (e.key === "Enter" && editId !== "") {
+                e.preventDefault();
+                if (todoData.title !== "" && todoData.details !== "") {
+                  handleEditsubmit();
+                }
               }
-              onChange={(e) => setDueDateFilter(e.target.valueAsDate)}
-              placeholder="Due Date Filter"
-            />
+            }}
+          />
+          {errorObj.details && (
+            <p className="my-1 text-red-500">{errorObj.details}</p>
+          )}
+          <div className="w-full border border-gray-300 grid grid-cols-3 gap-4">
             <select
-              value={priorityFilter ?? ""}
+              name="priority"
+              value={priority}
               onChange={(e) =>
-                setPriorityFilter(
-                  e.target.value as "LOW" | "MEDIUM" | "HIGH" | null,
-                )
+                setPriority(e.target.value as "LOW" | "MEDIUM" | "HIGH")
               }
+              className="rounded-md border border-gray-300 p-2 focus:outline-none focus:border-blue-500"
             >
-              <option value="">All Priorities</option>
               <option value="LOW">Low</option>
               <option value="MEDIUM">Medium</option>
               <option value="HIGH">High</option>
             </select>
             <select
-              value={categoryFilter ?? ""}
+              name="category"
+              value={category}
               onChange={(e) =>
-                setCategoryFilter(
-                  e.target.value as "WORK" | "PERSONAL" | "FITNESS" | null,
-                )
+                setCategory(e.target.value as "WORK" | "PERSONAL" | "FITNESS")
               }
+              className="rounded-md border border-gray-300 p-2 focus:outline-none focus:border-blue-500"
             >
-              <option value="">All Categories</option>
               <option value="WORK">WORK</option>
               <option value="PERSONAL">PERSONAL</option>
               <option value="FITNESS">FITNESS</option>
             </select>
-            <select
-              value={
-                completionFilter === null ? "" : completionFilter.toString()
-              }
-              onChange={(e) => {
-                const value = e.target.value;
-                setCompletionFilter(
-                  value === "true" ? true : value === "false" ? false : null,
-                );
-              }}
-            >
-              <option value="">All Completion Status</option>
-              <option value="true">Completed</option>
-              <option value="false">Incomplete</option>
-            </select>
-          </div>
-
-          <div className="mt-4">
-            <button onClick={() => handleClearFilter()}>Clear Filters</button>
-          </div>
-
-
-
-          {load ? (
-            <LoadingSpine />
-          ) : (
-            <div className="my-4 w-1/2 gap-3">
-              {searchQuery !== ""
-                ? searchResults.map((todo: Todo) => (
-                  <div
-                    key={todo.id}
-                    className={`mb-2 mt-4 flex items-center gap-2 rounded-md bg-gradient-to-r from-gray-200 via-green-200 to-blue-300 p-3 ${todo.done ? "line-through" : ""
-                      }`}
-                  >
-                    <input
-                      type="checkbox"
-                      style={{ zoom: 1.1 }}
-                      checked={!!todo.done}
-                      className="form-checkbox h-6 w-6 text-teal-400
-                      focus:ring-teal-400"
-                      onChange={() => {
-                        setDoneMutate({
-                          id: todo.id,
-                          done: todo.done ? false : true,
-                        });
-                        setLoad(true);
-                      }}
-                    />
-                    <div
-                      className={`flex w-3/4 flex-col justify-start ${todo.done ? "line-through" : ""
-                        }`}
-                    >
-                      <p className={`text-lg font-semibold`}>{todo.title}</p>
-                      <p className={`text-gray-500`}>{todo.details}</p>
-                      <p className="text-sm text-gray-400">
-                        Due Date: {todo.dueDate ? todo.dueDate.toString() : ""} | Due Time: {todo.dueTime ? todo.dueTime.toString() : ""} | Category: {todo.category} | Priority: {todo.priority}
-                      </p>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      <EditIcon
-                        sx={{ color: "green" }}
-                        onClick={() => handleEdit(todo)}
-                        className="m-auto w-[70%] cursor-pointer"
-                      />
-                      <DeleteForeverIcon
-                        sx={{ color: "red" }}
-                        onClick={() => {
-                          deleteMutate(todo.id);
-                          setLoad(true);
-                        }}
-                        className="m-auto w-[70%] cursor-pointer"
-                      />
-                    </div>
-                  </div>
-                ))
-                : sortedTodos.map((todo: Todo, index: number) => (
-                  <div
-                    key={index}
-                    className={`mb-2 mt-4 flex items-center gap-2 rounded-md bg-gradient-to-r from-gray-200 via-green-200 to-blue-300 p-3 ${todo.done ? "line-through" : ""
-                      }`}
-                  >
-                    <input
-                      type="checkbox"
-                      style={{ zoom: 1.1 }}
-                      checked={!!todo.done}
-                      className="form-checkbox h-6 w-6 text-teal-400
-                                 focus:ring-teal-400"
-                      onChange={() => {
-                        setDoneMutate({
-                          id: todo.id,
-                          done: todo.done ? false : true,
-                        });
-                        setLoad(true);
-                      }}
-                    />
-
-                    <div
-                      className={`flex w-3/4 flex-col justify-start ${todo.done ? "line-through" : ""
-                        }`}
-                    >
-                      <p className={`text-lg font-semibold`}>{todo.title}</p>
-                      <p className={`text-gray-500`}>{todo.details}</p>
-                      <p className="text-lg text-red-400">
-                        Due Date: {todo.dueDate ? todo.dueDate.toString() : ""} 
-                      </p>
-                      <p className="text-lg text-red-400">Due Time: {todo.dueTime ? todo.dueTime.toString() : ""} </p>
-                      <p className="text-lg text-red-400">Category: {todo.category} </p>
-                      <p className="text-lg text-red-400">Priority: {todo.priority}</p>
-
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      <EditIcon
-                        sx={{ color: "green" }}
-                        onClick={() => handleEdit(todo)}
-                        className="m-auto w-[70%] cursor-pointer"
-                      />
-
-                      <DeleteForeverIcon
-                        sx={{ color: "red" }}
-                        onClick={() => {
-                          deleteMutate(todo.id);
-                          setLoad(true);
-                        }}
-                        className="m-auto w-[70%] cursor-pointer"
-                      />
-                    </div>
-                  </div>
-                ))}
-
+            <div className="flex gap-2 items-center">
+              <input
+                type="date"
+                name="dueDate"
+                value={todoData.dueDate ?? ""}
+                onChange={handleDateChange}
+                className="rounded-md border border-gray-300 p-2 focus:outline-none focus:border-blue-500"
+              />
+              <input
+                type="time"
+                name="dueTime"
+                value={todoData.dueTime ?? ""}
+                onChange={handleTimeChange}
+                className="rounded-md border border-gray-300 p-2 focus:outline-none focus:border-blue-500"
+              />
             </div>
+          </div>
+
+
+          {editId ? (
+            <button
+              disabled={!!errorObj.title || !!errorObj.details}
+              onClick={handleEditsubmit}
+              className="my-3 rounded-md bg-blue-400 px-4 py-2 text-white shadow hover:bg-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50"
+            >
+              Save Edit
+            </button>
+          ) : (
+            <button
+              onClick={handleAddTodo}
+              className="my-3 rounded-md bg-blue-400 px-4 py-2 text-white shadow hover:bg-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50"
+            >
+              Add Todo
+            </button>
           )}
-
-
+        </div>
+        <div>
+        </div>
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-lg font-semibold">Sort By:</span>
+          <div className="flex gap-3">
+            <button onClick={() => handleSortBy("dueDate")} className="text-blue-400 hover:text-blue-600 focus:outline-none">Due Date</button>
+            <button onClick={() => handleSortBy("priority")} className="text-blue-400 hover:text-blue-600 focus:outline-none">Priority</button>
+            <button onClick={() => handleSortBy("category")} className="text-blue-400 hover:text-blue-600 focus:outline-none">Category</button>
+            <button onClick={() => handleSortBy("completion")} className="text-blue-400 hover:text-blue-600 focus:outline-none">Completion</button>
+          </div>
         </div>
 
-      )}
+        <div className="flex gap-3 mb-4">
+          <input
+            type="date"
+            value={dueDateFilter ? dueDateFilter.toISOString().split("T")[0] : ""}
+            onChange={(e) => setDueDateFilter(e.target.valueAsDate)}
+            placeholder="Due Date Filter"
+            className="border border-gray-300 rounded-md p-2 focus:outline-none focus:border-blue-500"
+          />
+          <select
+            value={priorityFilter ?? ""}
+            onChange={(e) => setPriorityFilter(e.target.value as "LOW" | "MEDIUM" | "HIGH" | null)}
+            className="border border-gray-300 rounded-md p-2 focus:outline-none focus:border-blue-500"
+          >
+            <option value="">All Priorities</option>
+            <option value="LOW">Low</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="HIGH">High</option>
+          </select>
+          <select
+            value={categoryFilter ?? ""}
+            onChange={(e) => setCategoryFilter(e.target.value as "WORK" | "PERSONAL" | "FITNESS" | null)}
+            className="border border-gray-300 rounded-md p-2 focus:outline-none focus:border-blue-500"
+          >
+            <option value="">All Categories</option>
+            <option value="WORK">WORK</option>
+            <option value="PERSONAL">PERSONAL</option>
+            <option value="FITNESS">FITNESS</option>
+          </select>
+          <select
+            value={completionFilter === null ? "" : completionFilter.toString()}
+            onChange={(e) => {
+              const value = e.target.value;
+              setCompletionFilter(value === "true" ? true : value === "false" ? false : null);
+            }}
+            className="border border-gray-300 rounded-md p-2 focus:outline-none focus:border-blue-500"
+          >
+            <option value="">All Completion Status</option>
+            <option value="true">Completed</option>
+            <option value="false">Incomplete</option>
+          </select>
+        </div>
+
+        <div className="mb-4">
+          <button onClick={() => handleClearFilter()} className="rounded-md bg-blue-400 px-4 py-2 text-white shadow hover:bg-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50">Clear Filters</button>
+        </div>
+
+
+
+
+        {load ? (
+          <LoadingSpine />
+        ) : (
+          <div className="my-4 w-1/2 gap-3">
+            {searchQuery !== ""
+              ? searchResults.map((todo: Todo) => (
+                <div
+                  key={todo.id}
+                  className={`mb-2 mt-4 flex items-center gap-2 rounded-md bg-gradient-to-r from-gray-200 via-green-200 to-blue-300 p-3 ${todo.done ? "line-through" : ""
+                    }`}
+                >
+                  <input
+                    type="checkbox"
+                    style={{ zoom: 1.1 }}
+                    checked={!!todo.done}
+                    className="form-checkbox h-6 w-6 text-teal-400
+                      focus:ring-teal-400"
+                    onChange={() => {
+                      setDoneMutate({
+                        id: todo.id,
+                        done: todo.done ? false : true,
+                      });
+                      setLoad(true);
+                    }}
+                  />
+                  <div
+                    className={`flex w-3/4 flex-col justify-start ${todo.done ? "line-through" : ""
+                      }`}
+                  >
+                    <p className={`text-lg font-semibold`}>{todo.title}</p>
+                    <p className={`text-gray-500`}>{todo.details}</p>
+                    <p className="text-sm text-gray-400">
+                      Due Date: {todo.dueDate ? todo.dueDate.toString() : ""} | Due Time: {todo.dueTime ? todo.dueTime.toString() : ""} | Category: {todo.category} | Priority: {todo.priority}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <EditIcon
+                      sx={{ color: "green" }}
+                      onClick={() => handleEdit(todo)}
+                      className="m-auto w-[70%] cursor-pointer"
+                    />
+                    <DeleteForeverIcon
+                      sx={{ color: "red" }}
+                      onClick={() => {
+                        deleteMutate(todo.id);
+                        setLoad(true);
+                      }}
+                      className="m-auto w-[70%] cursor-pointer"
+                    />
+                  </div>
+                </div>
+              ))
+              : sortedTodos.map((todo: Todo, index: number) => (
+                <div
+                  key={index}
+                  className={`mb-2 mt-4 flex items-center gap-2 rounded-md bg-gradient-to-r from-gray-200 via-green-200 to-blue-300 p-3 ${todo.done ? "line-through" : ""
+                    }`}
+                >
+                  <input
+                    type="checkbox"
+                    style={{ zoom: 1.1 }}
+                    checked={!!todo.done}
+                    className="form-checkbox h-6 w-6 text-teal-400
+                                 focus:ring-teal-400"
+                    onChange={() => {
+                      setDoneMutate({
+                        id: todo.id,
+                        done: todo.done ? false : true,
+                      });
+                      setLoad(true);
+                    }}
+                  />
+
+                  <div
+                    className={`flex w-3/4 flex-col justify-start ${todo.done ? "line-through" : ""
+                      }`}
+                  >
+                    <p className={`text-lg font-semibold`}>{todo.title}</p>
+                    <p className={`text-gray-500`}>{todo.details}</p>
+                    <p className="text-lg text-red-400">
+                      Due Date: {todo.dueDate ? todo.dueDate.toString() : ""}
+                    </p>
+                    <p className="text-lg text-red-400">Due Time: {todo.dueTime ? todo.dueTime.toString() : ""} </p>
+                    <p className="text-lg text-red-400">Category: {todo.category} </p>
+                    <p className="text-lg text-red-400">Priority: {todo.priority}</p>
+
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    <EditIcon
+                      sx={{ color: "green" }}
+                      onClick={() => handleEdit(todo)}
+                      className="m-auto w-[70%] cursor-pointer"
+                    />
+
+                    <DeleteForeverIcon
+                      sx={{ color: "red" }}
+                      onClick={() => {
+                        deleteMutate(todo.id);
+                        setLoad(true);
+                      }}
+                      className="m-auto w-[70%] cursor-pointer"
+                    />
+                  </div>
+                </div>
+              ))}
+
+          </div>
+        )}
+
+
+      </div>
+
+
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { api } from "@/utils/api";
 import { LoadingSpine } from "@/components/Loading";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/router";
+import Landing from "@/components/Home";
 
 function Organization() {
   const { data: session } = useSession();
@@ -107,33 +108,11 @@ function Organization() {
     }
   };
 
-  const handleProps = () => {
-    if (!organizationCode) {
-      toast.error("Please enter the organization code");
-      return;
-    }
-  
-    setLoading(true);
-  
-   
-  }
-
   const handleJoinOrganization = () => {
     if (!organizationCode) {
       toast.error("Please enter the organization code");
       return;
     }
-     // Assuming you want to pass organizationCode and managerCode as props
-    //  const queryParams = {
-    //   organizationCode: organizationCode,
-    //   managerCode: managerCode,
-    // };
-  
-    // // Navigate to "/todos" with query parameters
-    // void router.push({
-    //   pathname: "/todos",
-    //   query: queryParams,
-    // });
     setLoading(true);
     joinOrganizationMutation({ organizationCode, managerCode });
   };
@@ -156,77 +135,63 @@ function Organization() {
   }
 
   return (
-    <div>
-      {loading && <LoadingSpine />}
-      <h1>Create Organization</h1>
-      <button onClick={handleCreateOrganization} disabled={loading}>
-        Create Organization
-      </button>
+    <div className="container mx-auto px-4 py-8">
+    {!session ? (
+      <Landing />
+    ) : (
+      <div className="max-w-lg mx-auto">
+        <h1 className="text-3xl font-bold mb-8 text-center">Create Organization</h1>
+        <button
+          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded w-full mb-4"
+          onClick={handleCreateOrganization}
+          disabled={loading}
+        >
+          Create Organization
+        </button>
 
-      <br />
-      <br />
-      <h1>Join Organization</h1>
-      <input
-        type="text"
-        placeholder="Enter Organization Code to Join"
-        value={organizationCode}
-        onChange={(e) => setOrganizationCode(e.target.value)}
-      />
-      <input
-        type="text"
-        placeholder="Enter Manager Code (Optional)"
-        value={managerCode}
-        onChange={(e) => setManagerCode(e.target.value)}
-      />
-      <button onClick={handleJoinOrganization} disabled={loading}>
-        Join Organization
-      </button>
+        <h1 className="text-3xl font-bold mb-8 text-center">Join Organization</h1>
+        <input
+          type="text"
+          placeholder="Enter Organization Code to Join"
+          value={organizationCode}
+          onChange={(e) => setOrganizationCode(e.target.value)}
+          className="border border-gray-300 rounded py-2 px-4 w-full mb-4"
+        />
+        <input
+          type="text"
+          placeholder="Enter Manager Code "
+          value={managerCode}
+          onChange={(e) => setManagerCode(e.target.value)}
+          className="border border-gray-300 rounded py-2 px-4 w-full mb-4"
+        />
+        <button
+          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded w-full mb-8"
+          onClick={handleJoinOrganization}
+          disabled={loading}
+        >
+          Join Organization
+        </button>
 
-      <br />
-      <br />
-      {/* {session &&
-        session.user.role === "ADMIN" && ( // Show delete button only for ADMIN users
-     */}
-          <div>
-            <h1>Delete Organization</h1>
-            <form>
-              <input
-                type="text"
-                value={organizationToDelete}
-                placeholder="enter organization id number which you want to delete"
-                onChange={(e) => setOrganizationToDelete(e.target.value)}
-              />
-              <button onClick={handleDeleteOrganization} disabled={loading}>
-                Delete Organization
-              </button>
-            </form>
-          </div>
-        
-      <br />
-      <br />
-
-      <div>
-        <form onSubmit={handleAssignRole}>
+        <h1 className="text-3xl font-bold mb-8 text-center">Delete Organization</h1>
+        <div className="mb-4">
           <input
             type="text"
-            name="assignId"
-            placeholder="enter organizationId"
-            value={assignData.assignId}
-            onChange={handlechangeRole}
+            value={organizationToDelete}
+            placeholder="Enter organization ID to delete"
+            onChange={(e) => setOrganizationToDelete(e.target.value)}
+            className="border border-gray-300 rounded py-2 px-4 w-full mb-2"
           />
-          <input
-            type="text"
-            name="role"
-            placeholder="enter role in Uppercase ADMIN MEMBER"
-            value={assignData.role}
-            onChange={handlechangeRole}
-          />
-          <button type="submit" disabled={loading}>
-            Assign Role
-          </button>
-        </form>
+        </div>
+        <button
+          className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded w-full"
+          onClick={handleDeleteOrganization}
+          disabled={loading}
+        >
+          Delete Organization
+        </button>
       </div>
-    </div>
+    )}
+  </div>
   );
 }
 
