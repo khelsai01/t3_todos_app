@@ -45,9 +45,9 @@ model Todo {
   dueDate        DateTime?
   dueTime        DateTime?
   category       Categories?
-  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId String?
   organizationCode String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@index([organizationId])
   @@index([userId])

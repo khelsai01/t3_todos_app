@@ -59,7 +59,7 @@ const dbUser = await db.user.findFirst({
     ...plan,
     stripeSubscriptionId: dbUser.stripeSubscriptionId,
     stripeCurrentPeriodEnd: dbUser.stripeCurrentPeriodEnd,
-    stripeCustomerId: dbUser.stripeCustomerId,
+    // stripeCustomerId: dbUser.stripeCustomerId,
     isSubscribed,
     isCanceled,
   }

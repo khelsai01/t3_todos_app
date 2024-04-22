@@ -16,7 +16,7 @@ import { toast } from "react-hot-toast";
 import { useRouter } from "next/router"
 import { Categories, Priority } from "@prisma/client";
 
-interface Todo {
+type Todo = {
   id: string;
   title: string;
   details: string;
@@ -26,7 +26,7 @@ interface Todo {
   dueTime: Date | null;
   category: "WORK" | "PERSONAL" | "FITNESS" | null;
   organizationCode: string;
-}
+};
 
 export default function Home() {
   const { data: session } = useSession();
@@ -121,7 +121,7 @@ export default function Home() {
         dueDate: todo.dueDate,
         dueTime: todo.dueTime,
         category: todo.category,
-        organizationCode: todo.organizationCode ?? "",
+        organizationCode: todo.organizationCode,
       })).sort((a, b) => {
         const priorityOrder = { LOW: 0, MEDIUM: 1, HIGH: 2 };
         return priorityOrder[a.priority] - priorityOrder[b.priority];
@@ -372,7 +372,7 @@ export default function Home() {
         `${todoData.dueDate}T${todoData.dueTime}:00`,
       ).toISOString(),
       category: category,
-      OrganizationCode: Array.isArray(organizationCode) ? organizationCode.join(",") : organizationCode,
+      OrganizationCode: organizationCode as string,
     });
 
 
