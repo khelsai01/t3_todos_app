@@ -10,30 +10,33 @@ import { ArrowRight, Check, HelpCircle, Minus } from "lucide-react";
  
 import { PLANS } from "./stripe";
 import MaxWidthWrapper from "./MaxWidthWrapper";
-import UpgradeButton from "./UpgradeButton";
+
 import { buttonVariants } from "./Button";
-import { signIn, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { Button } from "@mui/material";
 import Link from "next/link";
-// import type { GetServerSideProps } from "next";
-import { db } from "@/server/db";
 
-export const GetServerSideProps = async (ctx: any) => {
-  const userId  = ctx.session.user.id
+import { db } from "@/server/db";
+import { api } from "@/utils/api";
+
+// @ts-expect-error leave this alone
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+const userId = ctx.session?.user?.id;
+  
+
 
   if (userId) {
-    const user = await db.user.findFirst({
+    const account = await db.accounts.findFirst({
       where: {
-        id: userId,
+        userId: userId,
       },
     });
 
-    if (user?.stripStatus === "ACTIVE") {
+    if (account?.stripStatus === "ACTIVE") {
       return {
         redirect: {
           destination: "/pricing",
         },
-        props: {},
       };
     }
   }
@@ -44,6 +47,24 @@ export const GetServerSideProps = async (ctx: any) => {
 const Page = () => {
   const { data: session } = useSession();
   const user = session?.user;
+  const isLoaded = !!user;
+
+  const { data: subscriptionSessionData } =
+    api.stripe.getSubscriptionCheckoutURL.useQuery(void {}, {
+      enabled: isLoaded,
+    });
+
+
+
+  const handleGoToSubscriptionCheckoutSession = async () => {
+    const redirectURL = subscriptionSessionData?.redirectURL;
+
+    if (redirectURL) {
+      window.location.assign(redirectURL);
+    }
+  };
+
+
 
   const pricingItems = [
     {
@@ -204,24 +225,26 @@ const Page = () => {
                   {plan === 'Free' ? (
                         <Link
                           href={
-                            user ? '/dashboard' : '/sign-in'
+                            user ? '/todos' : '/sign-in'
                           }
                           className={buttonVariants({
                             className: 'w-full',
                             variant: 'secondary',
                           })}>
-                          {user ? 'Upgrade now' : 'Sign up'}
+                          {user ? 'TRY FREE' : 'Sign in'}
                           <ArrowRight className='h-5 w-5 ml-1.5' />
                         </Link>
                       ) : user ? (
-                        <UpgradeButton />
+                        <Button
+                        onClick={()=>handleGoToSubscriptionCheckoutSession()}
+                        >Upgrade Now</Button>
                       ) : (
                         <Link
-                          href='/sign-in'
+                          href='/organizaton'
                           className={buttonVariants({
                             className: 'w-full',
                           })}>
-                          {user ? 'Upgrade now' : 'Sign up'}
+                          {user ? 'Upgrade now' : 'Sign In'}
                           <ArrowRight className='h-5 w-5 ml-1.5' />
                         </Link>
                       )}

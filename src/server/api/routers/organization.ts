@@ -27,10 +27,10 @@ export const organizationRouter = createTRPCRouter({
   }),
   
 
-  getOrganizations: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
+  getOrganizations: publicProcedure.input(z.string()).query(async (opts) => {
     const organizations = await prisma.organization.findMany({
       where: {
-        organizationCode: input
+        organizationCode: opts.input
       }
     })
    
@@ -43,7 +43,7 @@ export const organizationRouter = createTRPCRouter({
     role: z.string(),
     
   })).mutation(async ({ ctx, input }) => {
-    const { organizationCode, managerCode, role } = input;
+    const { organizationCode,role } = input;
   
     try {
       const organization = await prisma.organization.findUnique({
@@ -67,6 +67,7 @@ export const organizationRouter = createTRPCRouter({
         data: { role: role as Role },
       });
   console.log("updated",await prisma.user.findFirst({where: {id: ctx.session?.user?.id}}))
+
       return { message: 'Role assigned successfully' };
     } catch (error) {
       if ((error as Error).message === 'Organization not found') {
@@ -127,6 +128,7 @@ export const organizationRouter = createTRPCRouter({
         },
       });
        
+
       return { message: 'Organization created successfully', organization };
     } catch (error) {
       throw new Error('Failed to create organization');

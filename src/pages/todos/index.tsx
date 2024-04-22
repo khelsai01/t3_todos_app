@@ -4,6 +4,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/consistent-type-imports
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { useSession } from "next-auth/react";
 import { api } from "@/utils/api";
 import { useState, useEffect } from "react";
@@ -17,6 +20,11 @@ import { useRouter } from "next/router"
 import { Categories, Priority } from "@prisma/client";
 // import Login from "../auth-callback";
 
+interface Props {
+  organizationCode: string;
+  managerCode: string;
+}
+
 interface Todo {
   id: string;
   title: string;
@@ -29,14 +37,16 @@ interface Todo {
   organizationCode: string;
 }
 
-export default function Home() {
+const Todos: React.FC<Props> = ({ organizationCode, managerCode }) => {
+   
+  console.log(organizationCode)
   const { data: session } = useSession();
   const currentDate = new Date();
   const hours = currentDate.getHours().toString().padStart(2, '0');
   const minutes = currentDate.getMinutes().toString().padStart(2, '0');
   const [file, setFile] = useState<File | null | undefined>(null);
   const router = useRouter();
-  const { organizationCode, managerCode } = router.query;
+ // const { organizationCode, managerCode } = router.query;
 
   console.log(organizationCode);
   const currentTime = `${hours}:${minutes}`;
@@ -394,6 +404,7 @@ export default function Home() {
         : "",
       priority: todo.priority,
       category: todo.category ?? "WORK",
+      priority: todo.priority,
     }));
     setCategory(todo.category ?? "WORK");
     setPriority(todo.priority);
@@ -772,3 +783,5 @@ export default function Home() {
     </div>
   );
 }
+
+export default Todos;

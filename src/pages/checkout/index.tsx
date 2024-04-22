@@ -1,7 +1,5 @@
 import { db } from "@/server/db";
-import { Button } from "@mui/material";
 import { signOut } from "next-auth/react";
-// import type { GetServerSideProps } from "next";
 import Link from "next/link";
 
 
@@ -9,16 +7,16 @@ export const GetServerSideProps = async (ctx: any) => {
     const userId  = ctx.session.user.id
   
     if (userId) {
-      const user = await db.user.findFirst({
+      const account = await db.accounts.findFirst({
         where: {
-          id: userId,
+          userId: userId,
         },
       });
 
-    if (user?.stripStatus === "INACTIVE") {
+    if (account?.stripStatus === "INACTIVE") {
       return {
         redirect: {
-          destination: "/packages",
+          destination: "/pricing",
         },
       };
     }
