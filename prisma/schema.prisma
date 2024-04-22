@@ -47,6 +47,7 @@ model Todo {
   category       Categories?
   organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId String?
+  organizationCode String?
 
   @@index([organizationId])
   @@index([userId])
