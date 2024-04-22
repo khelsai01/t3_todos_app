@@ -1,14 +1,13 @@
 import { z } from "zod";
 
-import { createTRPCRouter, privateProcedure, publicProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 
 import { TRPCError } from "@trpc/server";
 // import { PLANS } from "@/pages/pricing/stripe";
 import Stripe from "stripe";
-import { absoluteUrl } from "@/lib/utils";
-import { getUserSubscriptionPlan } from "@/lib/stripe";
+
 
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
@@ -31,6 +30,7 @@ const addTodoInput = z.object({
   dueDate: z.date().optional(),
   dueTime: z.string().optional(),
   category: z.enum(["WORK", "PERSONAL", "FITNESS"]).optional(),
+  OrganizationCode: z.string().optional(),
 });
 
 const setDoneInput = z.object({
@@ -54,7 +54,7 @@ export const todoRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const todos = await ctx.db.todo.findMany({
         where: {
-          userId: input,
+          organizationCode: input,
         },
         orderBy: {
           createdAt: "desc",
@@ -83,6 +83,7 @@ export const todoRouter = createTRPCRouter({
           dueDate: input.dueDate,
           dueTime: input.dueTime,
           category: input.category,
+          organizationCode: input.OrganizationCode,
         },
       });
       console.log("organizations", await ctx.db.user.findFirst({where: {id:ctx.session?.user.id}}))
@@ -132,52 +133,7 @@ export const todoRouter = createTRPCRouter({
       return updatedTodo;
     }),
 
-  createStripeSession: privateProcedure.mutation(async ({ ctx }) => {
-    const userId = ctx.session?.user.id;
-    
-    const billingUrl = absoluteUrl("/billing");
-
-    if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
-
-    const dbUser = await ctx.db.user.findFirst({
-      where: {
-        id: userId,
-      },
-    });
-
-    if (!dbUser || !dbUser.stripeCustomerId)
-      throw new TRPCError({ code: "UNAUTHORIZED" });
-
-    const subscriptionPlan = await getUserSubscriptionPlan();
-
-    if (subscriptionPlan.isSubscribed && dbUser.stripeCustomerId) {
-      const stripeSession = await stripe.billingPortal.sessions.create({
-        customer: dbUser.stripeCustomerId,
-        return_url: billingUrl,
-      });
-
-      return { url: stripeSession.url };
-    }
  
-    const stripeSession = await stripe.checkout.sessions.create({
-      success_url: billingUrl,
-      cancel_url: billingUrl,
-      payment_method_types: ['card'],
-      mode: 'subscription',
-      line_items: [
-        {
-          price: 'price_id_of_selected_plan', // Replace with actual price ID
-          quantity: 1,
-        },
-      ],
-      customer: dbUser.stripeCustomerId,
-      metadata: {
-        userId: userId,
-      },
-    });
-
-    return { url: stripeSession.url };
-  }),
 });
 
 export type TodoRouter = typeof todoRouter;

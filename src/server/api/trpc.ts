@@ -158,6 +158,8 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
   })
 });
 
+
+export { TRPCError };
 // export const adminProcedure = t.procedure.use(isAuthed).(({ ctx, next }) => {
 //   if (!ctx.session || !ctx.session.user) {
 //     throw new TRPCError({ code: "UNAUTHORIZED" });
