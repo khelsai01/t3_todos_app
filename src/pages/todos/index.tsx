@@ -4,8 +4,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/consistent-type-imports
-/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { useSession } from "next-auth/react";
 import { api } from "@/utils/api";
@@ -13,11 +11,10 @@ import { useState, useEffect } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { Header } from "@/components/header";
-import Landing from "@/components/Home";
 import { LoadingSpine } from "@/components/Loading";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/router"
-import { Categories, Priority } from "@prisma/client";
+import { type Categories, type Priority } from "@prisma/client";
 // import Login from "../auth-callback";
 
 interface Props {
@@ -45,7 +42,6 @@ const Todos: React.FC<Props> = ({ organizationCode, managerCode }) => {
   const hours = currentDate.getHours().toString().padStart(2, '0');
   const minutes = currentDate.getMinutes().toString().padStart(2, '0');
   const [file, setFile] = useState<File | null | undefined>(null);
-  const router = useRouter();
  // const { organizationCode, managerCode } = router.query;
 
   console.log(organizationCode);
@@ -91,7 +87,7 @@ const Todos: React.FC<Props> = ({ organizationCode, managerCode }) => {
 
   const ctx = api.useUtils();
   const { data, isLoading: todosLoading } = api.todo.getTodosByUser.useQuery(
-    organizationCode as string
+    organizationCode
   );
   const [searchResults, setSearchResults] = useState<Todo[]>([]);
 
