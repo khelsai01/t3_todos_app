@@ -18,10 +18,10 @@ export const env = createEnv({
       .enum(["development", "test", "production"])
       .default("development"),
       STRIPE_PUBLIC_KEY: z.string(),
-    STRIPE_WEBHOOK_SECRET: z.string(),
-    STRIPE_SUBSCRIPTION_PRICE_ID: z.string(),
-    STRIPE_LIFETIME_PRICE_ID: z.string(),
-    URL: z.string(),
+      STRIPE_WEBHOOK_SECRET: z.string(),
+      STRIPE_SUBSCRIPTION_PRICE_ID: z.string(),
+      STRIPE_LIFETIME_PRICE_ID: z.string(),
+      URL: z.string(),
     NEXTAUTH_SECRET:
       process.env.NODE_ENV === "production"
         ? z.string()
@@ -45,7 +45,7 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
-    // NEXT_PUBLIC_CLIENTVAR: z.string(),
+    // NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:z.string(),
   },
 
   /**
@@ -64,7 +64,8 @@ export const env = createEnv({
     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
     STRIPE_SUBSCRIPTION_PRICE_ID: process.env.STRIPE_SUBSCRIPTION_PRICE_ID,
     URL: process.env.URL,
-   STRIPE_LIFETIME_PRICE_ID: process.env.STRIPE_LIFETIME_PRICE_ID
+    STRIPE_LIFETIME_PRICE_ID: process.env.STRIPE_LIFETIME_PRICE_ID,
+  
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

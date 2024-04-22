@@ -79,7 +79,7 @@ export const organizationRouter = createTRPCRouter({
         where: { id:ctx.session?.user?.id},
         data: { role: role as Role },
       });
-  // console.log("updated",await prisma.user.findFirst({where: {id: ctx.session?.user?.id}}))
+  console.log("updated",await prisma.user.findFirst({where: {id: ctx.session?.user?.id}}))
       // Return a success message
       return { message: 'Role assigned successfully' };
     } catch (error) {
@@ -139,14 +139,14 @@ export const organizationRouter = createTRPCRouter({
           role: 'ADMIN',
         },
       });
-     {/* await prisma.user.update({
+      await prisma.user.update({
         where: { id: user.id },
         data: {
           role: 'ADMIN',
         },
       });
-       */}
-    //   console.log("created",await prisma.user.findFirst({where: {id: user.id}}))
+       
+     console.log("created",await prisma.user.findFirst({where: {id: user.id}}))
       // Return success message or data as needed
       return { message: 'Organization created successfully', organization };
     } catch (error) {

@@ -21,7 +21,7 @@ export const stripeRouter = createTRPCRouter({
         },
       ],
 
-      success_url: `${url}/checkout/success/?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${url}/`,
       cancel_url: `${url}/pricing`,
       subscription_data: {
         metadata: {
@@ -41,37 +41,7 @@ export const stripeRouter = createTRPCRouter({
     return { redirectURL: checkoutSession.url };
   }),
 
-  getLifeTimeCheckoutURL: protectedProcedure.query(async ({ ctx }) => {
-    const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-      apiVersion: "2024-04-10",
-    });
 
-    const url = env.URL;
-
-    const checkoutSession = await stripe.checkout.sessions.create({
-      mode: "payment",
-      line_items: [
-        {
-          price: env.STRIPE_LIFETIME_PRICE_ID,
-          quantity: 1,
-        },
-      ],
-      success_url: `${url}/checkout/success/?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${url}/pricing`,
-      metadata: {
-        userId: ctx.session.user.id,
-      },
-    });
-
-    if (!checkoutSession.url) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "Could not create checkout session",
-      });
-    }
-
-    return { redirectURL: checkoutSession.url };
-  }),
   cancelSubscription: protectedProcedure
     .input(z.object({ stripeCustomerId: z.string() }))
     .mutation(async ({ input }) => {
