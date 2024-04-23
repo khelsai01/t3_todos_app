@@ -10,6 +10,7 @@ import Head from "next/head";
 import { Toaster } from "react-hot-toast";
 
 
+
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -28,6 +29,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
       </Head>
       <main className={`font-sans ${inter.variable}`}>
         <Component {...pageProps} />
+        
       </main>
       <Toaster position="top-center" />
     </SessionProvider>

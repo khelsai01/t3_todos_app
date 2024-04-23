@@ -4,6 +4,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { useSession } from "next-auth/react";
 import { api } from "@/utils/api";
@@ -13,9 +14,8 @@ import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { Header } from "@/components/header";
 import { LoadingSpine } from "@/components/Loading";
 import { toast } from "react-hot-toast";
-import { useRouter } from "next/router"
 import { type Categories, type Priority } from "@prisma/client";
-// import Login from "../auth-callback";
+
 
 interface Props {
   organizationCode: string;
@@ -86,18 +86,9 @@ const Todos: React.FC<Props> = ({ organizationCode, managerCode }) => {
   }>({});
 
   const ctx = api.useUtils();
-  const { data, isLoading: todosLoading } = api.todo.getTodosByUser.useQuery(
-    organizationCode
-  );
+  const userId = session?.user?.id?? ""
+  const { data, isLoading: todosLoading } = api.todo.getTodosByUser.useQuery(userId);
   const [searchResults, setSearchResults] = useState<Todo[]>([]);
-
-
-  // const Organizations = api.organization.allOrganization.useQuery();
-
-
-
-  // console.log(Organizations.data);
-
 
   useEffect(() => {
     if (sortBy === "dueDate") {

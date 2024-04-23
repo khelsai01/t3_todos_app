@@ -21,7 +21,7 @@ export const stripeRouter = createTRPCRouter({
         },
       ],
 
-      success_url: `${url}/`,
+      success_url: `${url}/organization`,
       cancel_url: `${url}/pricing`,
       subscription_data: {
         metadata: {

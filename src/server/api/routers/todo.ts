@@ -56,7 +56,7 @@ export const todoRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const todos = await ctx.db.todo.findMany({
         where: {
-          organizationCode: input,
+          userId: input,
         },
         orderBy: {
           createdAt: "desc",

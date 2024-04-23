@@ -5,6 +5,7 @@ import { LoadingSpine } from "@/components/Loading";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/router";
 import Todos from "../todos";
+import { Header } from "@/components/header";
 
 function Organization() {
   const { data: session } = useSession();
@@ -137,7 +138,7 @@ function Organization() {
   return (
     <div className="flex flex-col items-center justify-center">
     {loading && <LoadingSpine />}
-    
+    <Header />
     <div className="my-8">
       <h1 className="text-2xl font-bold mb-4">Create Organization</h1>
       <button
