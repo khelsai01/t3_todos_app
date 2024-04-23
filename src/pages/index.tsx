@@ -17,13 +17,41 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { cn } from '@/lib/utils';
 import { api } from '@/utils/api';
 import { db } from '@/server/db';
-import { buttonVariants } from './pricing/Button';
-import { PLANS } from './pricing/stripe';
+
+
 import MaxWidthWrapper from './pricing/MaxWidthWrapper';
 import { Header } from '@/components/header';
+import  buttonVariants from './pricing/Button';
 
 // Define the plan quotas and features
-
+const PLANS = [
+  {
+    name: 'Free',
+    slug: 'free',
+    quota: 2,
+    pagesPerPdf: 5,
+    price: {
+      amount: 0,
+      priceIds: {
+        test: '',
+        production: '',
+      },
+    },
+  },
+  {
+    name: 'Business',
+    slug: 'business',
+    quota: 999,
+    pagesPerPdf: 25,
+    price: {
+      amount: 15,
+      priceIds: {
+        test: 'price_1P7DsBSAVkjeFrXmtycex4Pz',
+        production: '',
+      },
+    },
+  },
+]
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const userId = (ctx as any)?.session?.user?.id;

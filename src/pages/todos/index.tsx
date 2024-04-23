@@ -15,6 +15,7 @@ import { Header } from "@/components/header";
 import { LoadingSpine } from "@/components/Loading";
 import { toast } from "react-hot-toast";
 import { type Categories, type Priority } from "@prisma/client";
+import Upload from "./upload";
 
 
 interface Props {
@@ -477,24 +478,7 @@ const Todos: React.FC<Props> = ({ organizationCode, managerCode }) => {
             Search
           </button>
 
-          <div className="flex items-center justify-between my-4">
-            <label htmlFor="file-upload" className="cursor-pointer bg-blue-400 text-white px-4 py-2 rounded-md shadow hover:bg-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50">
-              Upload File
-            </label>
-            <input
-              id="file-upload"
-              type="file"
-              className="hidden"
-              onChange={handleFileChange}
-            />
-            <button
-              onClick={handleFileRemove}
-              className="bg-red-500 text-white px-4 py-2 rounded-md shadow hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
-            >
-              Remove File
-            </button>
-            {file && <p className="ml-2">{file.name}</p>}
-          </div>
+       
 
           <input
             type="text"
@@ -571,7 +555,9 @@ const Todos: React.FC<Props> = ({ organizationCode, managerCode }) => {
                 className="rounded-md border border-gray-300 p-2 focus:outline-none focus:border-blue-500"
               />
             </div>
+
           </div>
+            <Upload />
 
 
           {editId ? (

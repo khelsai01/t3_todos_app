@@ -15,7 +15,7 @@ export const Header = () => {
     await signIn('google', { callbackUrl: `${window.location.origin}/` });
   };
   return (
-    <div className="w-full flex justify-between px-2 py-4 bg-gradient-to-r from-red-100 via-green-100 to-blue-200 shadow-lg relative">
+    <div className="w-full flex justify-between px-2 py-4  shadow relative">
       <div className="text-sm md:text-base lg:text-xl text-center font-bold text-gray-800">T3 TODO APP</div>
       <div className="flex items-center">
         {session?.user ? (

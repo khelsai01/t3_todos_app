@@ -150,7 +150,7 @@ function Organization() {
       </button>
     </div>
   
-    <div className="my-8">
+    <div className="my-8 center">
       <h1 className="text-2xl font-bold mb-4">Join Organization</h1>
       <input
         type="text"
@@ -158,14 +158,21 @@ function Organization() {
         value={organizationCode}
         onChange={(e) => setOrganizationCode(e.target.value)}
         className="border border-gray-300 rounded-md p-2 mr-2 focus:outline-none focus:border-blue-500"
-      />
+        />
+        <br />
+        <br />
+
       <input
         type="text"
         placeholder="Enter Manager Code (Optional)"
         value={managerCode}
         onChange={(e) => setManagerCode(e.target.value)}
         className="border border-gray-300 rounded-md p-2 mr-2 focus:outline-none focus:border-blue-500"
-      />
+        />
+        <br />
+        <br />
+        
+        
       <button
         onClick={handleJoinOrganization}
         disabled={loading}
